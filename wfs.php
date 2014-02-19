@@ -48,7 +48,7 @@
 
 
             $insert_array["response"] = $return_code;            
-            return array($insert_array);            
+            return $insert_array;            
         }
  
 
