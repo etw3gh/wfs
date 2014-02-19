@@ -12,14 +12,14 @@
         #each endpoint has its own function
         
         //please md5 encode the password
-        public function register_user($username, $password, $first, $last, $lat=-1, $lng=-1, $full_response='false') 
+        public function register_user($username, $password, $first, $last, $lat=null, $lng=null, $full_response='false') 
         {
             //must be repeated for each api endpoint function due to RestServer functionality
             $mongo = new MongoClient();
             $wfs = $mongo->selectDB('wfs');
             $users = $wfs->selectCollection('users');
             $users->ensureIndex(array("username" => 1), array("unique" => 1));
-            $foursquare = new FoursquareAPI($client_key,$client_secret);
+            
             //-------------------------------------------------------------------------------
 
             $return_code = 'null';
@@ -54,14 +54,18 @@
             {
                 return array("response" => $return_code);
             }
-
         }
  
+        public function nearby_venues($lat, $lng, $limit=30)
+        {
+            require_once('../../../secret.php');
+            $foursquare = new FoursquareAPI(CLIENT_ID, CLIENT_SECRET);
 
+        }
 
 
     } //end WarFareSquare class
 
 $rest = new RestServer();
-$rest->addServiceClass(WarFareSquare);
+$rest->addServiceClass('WarFareSquare');
 $rest->handle();
