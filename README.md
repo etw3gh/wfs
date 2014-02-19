@@ -2,11 +2,11 @@ RESTful API for wfs
 ===
 
 
-Current url: wfs.openciti.ca
+Current backend url: wfs.openciti.ca
 ---
 
 Can be hosted on Google Compute Engine or AWS
-Current backend url: http://wfs.openciti.ca
+
 
 API Methods
 ---
