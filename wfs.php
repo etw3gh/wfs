@@ -56,6 +56,36 @@
             }
         }
  
+        //remember to md5 encode password
+        public function login_user($username, $password)
+        {
+            $mongo = new MongoClient();
+            $wfs = $mongo->selectDB('wfs');
+            $users = $wfs->selectCollection('users');
+            $users->ensureIndex(array("username" => 1), array("unique" => 1));
+
+            $login_query = $users->findOne(array("username" => $username, "password" => $password));
+
+            print_r($login_query);
+            
+            if(is_null($login_query))
+            {
+                return array("response" => "fail");
+            }
+            else
+            {
+                return array("response" => 'ok');
+            }
+
+
+        }    
+
+        public function roll_dice()
+        {
+        }
+
+        
+
         public function nearby_venues($lat, $lng, $limit=30)
         {
             require_once('../../../secret.php');
