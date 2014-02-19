@@ -12,7 +12,7 @@
         #each endpoint has its own function
         
         //please md5 encode the password
-        public function register_user($username, $password, $first, $last, $lat=-1, $lng=-1) 
+        public function register_user($username, $password, $first, $last, $lat=-1, $lng=-1, $full_response='false') 
         {
             //must be repeated for each api endpoint function due to RestServer functionality
             $mongo = new MongoClient();
@@ -45,10 +45,16 @@
                 return array("response" => "fail");
             }
 
+            if(strtolower($full_response) == 'true' )
+            {
+                $insert_array["response"] = $return_code;            
+                return $insert_array;            
+            }
+            else
+            {
+                return array("response" => $return_code);
+            }
 
-
-            $insert_array["response"] = $return_code;            
-            return $insert_array;            
         }
  
 

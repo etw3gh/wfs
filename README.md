@@ -29,6 +29,14 @@ register_user:
     try again with same info:
     {"response":"duplicate user"}
 
+    set full_response to 'false'
+
+    http://wfs.openciti.ca/?method=register_user&username=stevejobs2&password=LA26235612356SHFGSANN&first=Steve&last=Jobs&lat=49.0&lng=-78.0&full_response=false
+
+    {"response":"ok"}
+
+
+
 login_user:
 
     login_user
