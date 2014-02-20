@@ -84,7 +84,7 @@
 
         
 
-        public function nearby_venues($lat, $lng, $username)
+        public function nearby_venues($lat, $lng, $username, $how_many=5)
         {
             require_once('../../../secret.php');
             $foursquare = new FoursquareAPI(CLIENT_ID, CLIENT_SECRET);
@@ -167,7 +167,7 @@
                 $agg_array = array(array('$unwind' => '$nearby'),
                                    array('$match' => array('username' => $username)),
                                    array('$sort' => array('nearby.checkinsCount' => -1)),
-                                   array('$limit' => 5),
+                                   array('$limit' => $how_many),
                                    array('$project' => array('nearby.name' => 1,
                                                              'nearby.checkinsCount' => 1,
                                                              'nearby.id' =>   1,

@@ -31,7 +31,7 @@ register_user:
     try again with same info:
     {"response":"duplicate user"}
 
-    set full_response to 'false' (can just be omitted as this is the default setting)
+    set full_response to 'false'
 
     http://wfs.openciti.ca?method=register_user&username=stevejobs2&password=LA26235612356SHFGSANN&first=Steve&last=Jobs&lat=49.0&lng=-78.0&full_response=false
 
@@ -46,13 +46,14 @@ login_user:
         password
 
 
-nearby_venues (top 5 returned with distances and check in stats):
+nearby_venues (return from top of sorted list according to 'how_many'):
     nearby_venues
         latitude
         longitude
         username
+        how_many
 
-    http://wfs.openciti.ca?method=nearby_venues&lat=43.6572331&lng=-79.378499&username=stevejobs2
+    http://wfs.openciti.ca?method=nearby_venues&lat=43.6572331&lng=-79.378499&username=stevejobs2&how_many=5
 
     {"response":"ok",
     "top5":
