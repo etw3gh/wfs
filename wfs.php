@@ -2,6 +2,7 @@
     require_once("FoursquareAPI.class.php");
     require_once('RestServer.php');
 
+
     // http://wfs.openciti.ca?method=MethodName&param1=Param1Value&param2=Param2Value
     class WarFareSquare
     {
@@ -19,10 +20,7 @@
             $wfs = $mongo->selectDB('wfs');
             $users = $wfs->selectCollection('users');
             $users->ensureIndex(array("username" => 1), array("unique" => 1));
-            
-            //-------------------------------------------------------------------------------
 
-            $return_code = 'null';
             $insert_array = null;
 
             try{
@@ -86,26 +84,105 @@
 
         
 
-        public function nearby_venues($lat, $lng, $limit=30, $query=null, $radius=1000)
+        public function nearby_venues($lat, $lng, $username)
         {
             require_once('../../../secret.php');
             $foursquare = new FoursquareAPI(CLIENT_ID, CLIENT_SECRET);
 
-            //prepare default params
-            $param_array = array('ll' => "$lat, $lng", 'limit' => $limit, 'radius' => $radius);
+            $mongo = new MongoClient();
+            $wfs = $mongo->selectDB('wfs');
+            $nearby_venues = $wfs->selectCollection('nearby');
 
-            //add query if user or app demands it
-            if (!is_null($query))
+            //clear previous searches no need to archive
+            //lazily erasing previous searches allows for last search to be kept on file
+            //may need to erase after each use...
+            try
             {
-                $param_array['query'] = $query;
+                $nearby_venues->remove(array('username' => $username));
+            }
+            catch (MongoCursorException $e)
+            {
+                #nop
             }
 
-            $params =  $param_array;
+            //prepare default params
+            $params = array('ll' => "$lat, $lng", 'radius' => 2000);
 
             // Perform a request to a public resource
             $response = $foursquare->GetPublic("venues/search",$params);
             $venues = json_decode($response);
 
+
+            $final_insert_array= array();
+            $insert_array = array();
+
+            #un-nest the response
+            foreach($venues->response->venues as $venue)
+            {
+                foreach($venue as $key => $value)
+                {
+                    if (is_object($key) or is_object($value))
+                    {
+                        foreach($value as $nested_key => $nested_value)
+                        {
+                            if (!is_object($nested_value))
+                            {
+                                $insert_array[$nested_key] = $nested_value;
+                            }
+                        }
+                    }
+                    else
+                    {
+
+                        $insert_array[$key] = $value;
+
+                    }
+                }
+                array_push($final_insert_array, $insert_array);
+            }
+
+            try
+            {
+                $nearby_venues->insert(array('username' => $username, 'nearby' => $final_insert_array));
+
+            }
+            catch(MongoCursorException $e)
+            {
+                return array('response' => 'fail', 'reason' => 'insert');
+            }
+            /*
+            > db.nearby.aggregate( {$unwind: "$nearby"},
+                                   {$sort: {'nearby.checkinsCount':-1}},
+                                   {$limit:5},
+                                   {$project:
+                                        {'nearby.name':1,
+                                         'nearby.checkinsCount':1,
+                                         "nearby.id":1 ,
+                                         "nearby.distance":1}} )
+
+            */
+
+            try
+            {
+                $agg_array = array(array('$unwind' => '$nearby'),
+                                   array('$match' => array('username' => $username)),
+                                   array('$sort' => array('nearby.checkinsCount' => -1)),
+                                   array('$limit' => 5),
+                                   array('$project' => array('nearby.name' => 1,
+                                                             'nearby.checkinsCount' => 1,
+                                                             'nearby.id' =>   1,
+                                                             'nearby.distance' => 1
+                                   ))
+                );
+
+                $aggregate = $nearby_venues->aggregate( $agg_array );
+
+                return array('response' => 'ok', 'top5' => $aggregate);
+            }
+            catch(MongoCursorException $e)
+            {
+                return array('response' => 'fail', 'reason' => 'top5');
+            }
 
 
         }

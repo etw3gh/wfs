@@ -38,10 +38,55 @@ register_user:
 
 
 login_user:
-
     login_user
         username
         password
+
+nearby_venues (top 5 returned with distances and check in stats):
+    nearby_venues
+        latitude
+        longitude
+        username
+
+    http://wfs.openciti.ca?method=nearby_venues&lat=43.6572331&lng=-79.378499&username=stevejobs2
+
+    {"response":"ok",
+    "top5":{"result":
+    [
+        {"_id":
+        {"$id":"5305781d3a3cadee0123c711"},
+        "nearby":{"id":"4b02f140f964a520404b22e3",
+        "name":"George Vari Engineering and Computing Centre",
+        "distance":77,
+        "checkinsCount":2867}},
+
+        {"_id":
+        {"$id":"5305781d3a3cadee0123c711"},
+        "nearby":{"id":"4b4ce994f964a520f3c326e3",
+        "name":"Victoria Building",
+        "distance":99,
+        "checkinsCount":2148}},
+
+        {"_id":
+        {"$id":"5305781d3a3cadee0123c711"},
+        "nearby":{"id":"4d21f9a05c4ca1cdd1f9ad3d",
+        "name":"Ryerson Square",
+        "distance":106,
+        "checkinsCount":1629}},
+
+        {"_id":{"$id":"5305781d3a3cadee0123c711"},
+        "nearby":{"id":"4adfbe44f964a5202d7d21e3",
+        "name":"The Ram in the Rye",
+        "distance":87,
+        "checkinsCount":1508}},
+
+        {"_id":{"$id":"5305781d3a3cadee0123c711"},
+        "nearby":{"id":"4ae1b49ff964a520d78621e3",
+        "name":"Student Campus Centre",
+        "distance":79,
+        "checkinsCount":1452}}],
+
+        "ok":1}}
 
 roll_dice:
     
