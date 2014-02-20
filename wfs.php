@@ -114,11 +114,11 @@
 
 
             $final_insert_array= array();
-            $insert_array = array();
-
+            
             #un-nest the response
             foreach($venues->response->venues as $venue)
             {
+                $insert_array = array();
                 foreach($venue as $key => $value)
                 {
                     if (is_object($key) or is_object($value))
@@ -157,7 +157,7 @@
             //only get 'how_many' off the top of the list
 
 
-            
+
             /* javascript shell command for posterity & testing
             > db.nearby.aggregate( {$unwind: "$nearby"},
                                    {$sort: {'nearby.checkinsCount':-1}},
