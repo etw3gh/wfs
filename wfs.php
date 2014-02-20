@@ -2,6 +2,7 @@
     require_once("FoursquareAPI.class.php");
     require_once('RestServer.php');
 
+    //important: convert all data to string before db ops
 
     // http://wfs.openciti.ca?method=MethodName&param1=Param1Value&param2=Param2Value
     class WarFareSquare
@@ -24,12 +25,12 @@
             $insert_array = null;
 
             try{
-                $insert_array = array('username' => $username, 
-                                      'password' => $password, 
-                                      'first' => $first , 
-                                      'last' => $last, 
-                                      'lat' => $lat,
-                                      'lng' => $lng);
+                $insert_array = array('username' => (string) $username,
+                                      'password' => (string) $password,
+                                      'first' => (string) $first ,
+                                      'last' => (string) $last,
+                                      'lat' => (string) $lat,
+                                      'lng' => (string) $lng);
 
                 $users->insert($insert_array);
                 $return_code = 'ok';
@@ -45,12 +46,12 @@
 
             if(strtolower($full_response) == 'true' )
             {
-                $insert_array["response"] = $return_code;            
+                $insert_array["response"] = (string) $return_code;
                 return $insert_array;            
             }
             else
             {
-                return array("response" => $return_code);
+                return array("response" => (string) $return_code);
             }
         }
  
@@ -62,7 +63,7 @@
             $users = $wfs->selectCollection('users');
             $users->ensureIndex(array("username" => 1), array("unique" => 1));
 
-            $login_query = $users->findOne(array("username" => $username, "password" => $password));
+            $login_query = $users->findOne(array("username" => (string) $username, "password" => (string) $password));
 
             print_r($login_query);
             
@@ -98,7 +99,7 @@
             //may need to erase after each use...
             try
             {
-                $nearby_venues->remove(array('username' => $username));
+                $nearby_venues->remove(array('username' => (string) $username));
             }
             catch (MongoCursorException $e)
             {
@@ -127,14 +128,14 @@
                         {
                             if (!is_object($nested_value))
                             {
-                                $insert_array[$nested_key] = $nested_value;
+                                $insert_array[$nested_key] = (string) $nested_value;
                             }
                         }
                     }
                     else
                     {
 
-                        $insert_array[$key] = $value;
+                        $insert_array[$key] = (string) $value;
 
                     }
                 }
@@ -145,7 +146,7 @@
 
             try
             {
-                $nearby_venues->insert(array('username' => $username, 'nearby' => $final_insert_array));
+                $nearby_venues->insert(array('username' => (string) $username, 'nearby' => $final_insert_array));
 
             }
             catch(MongoCursorException $e)
@@ -178,7 +179,7 @@
             try
             {
                 $agg_array = array(array('$unwind' => '$nearby'),
-                                   array('$match' => array('username' => $username)),
+                                   array('$match' => array('username' => (string) $username)),
                                    array('$sort' => array('nearby.checkinsCount' => -1)),
                                    array('$limit' => (int) $how_many),
                                    array('$project' => array('nearby.name' => 1,
