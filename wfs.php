@@ -150,7 +150,15 @@
             {
                 return array('response' => 'fail', 'reason' => 'insert');
             }
-            /*
+
+
+
+            //get top venues according to checkinsCount.
+            //only get 'how_many' off the top of the list
+
+
+            
+            /* javascript shell command for posterity & testing
             > db.nearby.aggregate( {$unwind: "$nearby"},
                                    {$sort: {'nearby.checkinsCount':-1}},
                                    {$limit:5},
@@ -162,6 +170,9 @@
 
             */
 
+
+
+            //aggregate results and construct reply
             try
             {
                 $agg_array = array(array('$unwind' => '$nearby'),
