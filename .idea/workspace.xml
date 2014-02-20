@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ce030b40-1146-4c8a-8b4c-cc728331d0a7" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="public_html.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -28,7 +28,7 @@
       <file leaf-file-name="wfs.php" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wfs.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="100" column="32" selection-start="3309" selection-end="3309" vertical-scroll-proportion="-3.074074" vertical-offset="1717" max-vertical-offset="3618">
+            <state line="180" column="59" selection-start="6362" selection-end="6362" vertical-scroll-proportion="-22.407408" vertical-offset="2635" max-vertical-offset="3636">
               <folding />
             </state>
           </provider>
@@ -37,7 +37,7 @@
       <file leaf-file-name="README.md" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/README.md">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="13" column="14" selection-start="147" selection-end="147" vertical-scroll-proportion="0.28432563" vertical-offset="0" max-vertical-offset="1872">
+            <state line="84" column="8" selection-start="2097" selection-end="2097" vertical-scroll-proportion="0.8031592" vertical-offset="851" max-vertical-offset="1782">
               <folding />
             </state>
           </provider>
@@ -241,7 +241,11 @@
       <created>1392867591235</created>
       <updated>1392867591235</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="top 5 working&#10;">
+      <created>1392868783735</created>
+      <updated>1392868783735</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -283,7 +287,8 @@
     </option>
     <MESSAGE value="nearby_venues&#10;" />
     <MESSAGE value="&#10;top 5 works" />
-    <option name="LAST_COMMIT_MESSAGE" value="&#10;top 5 works" />
+    <MESSAGE value="top 5 working&#10;" />
+    <option name="LAST_COMMIT_MESSAGE" value="top 5 working&#10;" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -312,14 +317,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/wfs.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="100" column="32" selection-start="3309" selection-end="3309" vertical-scroll-proportion="-3.074074" vertical-offset="1717" max-vertical-offset="3618">
+        <state line="180" column="59" selection-start="6362" selection-end="6362" vertical-scroll-proportion="-22.407408" vertical-offset="2635" max-vertical-offset="3636">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="13" column="14" selection-start="147" selection-end="147" vertical-scroll-proportion="0.28432563" vertical-offset="0" max-vertical-offset="1872">
+        <state line="84" column="8" selection-start="2097" selection-end="2097" vertical-scroll-proportion="0.8031592" vertical-offset="851" max-vertical-offset="1782">
           <folding />
         </state>
       </provider>
