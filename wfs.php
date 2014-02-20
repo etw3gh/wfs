@@ -86,10 +86,27 @@
 
         
 
-        public function nearby_venues($lat, $lng, $limit=30)
+        public function nearby_venues($lat, $lng, $limit=30, $query=null, $radius=1000)
         {
             require_once('../../../secret.php');
             $foursquare = new FoursquareAPI(CLIENT_ID, CLIENT_SECRET);
+
+            //prepare default params
+            $param_array = array('ll' => "$lat, $lng", 'limit' => $limit, 'radius' => $radius);
+
+            //add query if user or app demands it
+            if (!is_null($query))
+            {
+                $param_array['query'] = $query;
+            }
+
+            $params =  $param_array;
+
+            // Perform a request to a public resource
+            $response = $foursquare->GetPublic("venues/search",$params);
+            $venues = json_decode($response);
+
+
 
         }
 
