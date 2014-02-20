@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="ce030b40-1146-4c8a-8b4c-cc728331d0a7" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/testing_api_login.php" afterPath="$PROJECT_DIR$/testing_api_login.php" />
     </list>
     <ignored path="public_html.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -38,7 +37,7 @@
       <file leaf-file-name="README.md" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/README.md">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="45" column="0" selection-start="1008" selection-end="1008" vertical-scroll-proportion="0.6500608" vertical-offset="275" max-vertical-offset="1836">
+            <state line="11" column="0" selection-start="128" selection-end="128" vertical-scroll-proportion="0.24058323" vertical-offset="0" max-vertical-offset="1872">
               <folding />
             </state>
           </provider>
@@ -320,7 +319,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="45" column="0" selection-start="1008" selection-end="1008" vertical-scroll-proportion="0.6500608" vertical-offset="275" max-vertical-offset="1836">
+        <state line="11" column="0" selection-start="128" selection-end="128" vertical-scroll-proportion="0.24058323" vertical-offset="0" max-vertical-offset="1872">
           <folding />
         </state>
       </provider>

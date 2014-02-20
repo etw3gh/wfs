@@ -9,6 +9,8 @@ Can be hosted on Google Compute Engine or AWS
 
 
 API Methods
+
+(it is assumes that passwords will be md5 encoded by the application)
 ---
 
 register_user:
