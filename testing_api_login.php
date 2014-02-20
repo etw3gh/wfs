@@ -9,8 +9,8 @@
     $foursquare = new FoursquareAPI($client_key,$client_secret);
     $location = "Toronto, ON";
 
-    $lat = 43.768020441;
-    $lng = -79.229047273;
+    $lat = 43.657233;
+    $lng = -79.378499;
     
     //prepare params
     $params = array('ll' => "$lat, $lng") ;

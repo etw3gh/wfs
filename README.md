@@ -38,9 +38,11 @@ register_user:
 
 
 login_user:
+
     login_user
         username
         password
+
 
 nearby_venues (top 5 returned with distances and check in stats):
     nearby_venues
