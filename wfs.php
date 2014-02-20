@@ -113,9 +113,9 @@
             $venues = json_decode($response);
 
 
-            $final_insert_array= array();
-            
-            #un-nest the response
+            $final_insert_array=  array();
+
+            #un-nest the response (a bit cleaner than pumping in json_decode($x, true)
             foreach($venues->response->venues as $venue)
             {
                 $insert_array = array();
@@ -140,6 +140,8 @@
                 }
                 array_push($final_insert_array, $insert_array);
             }
+
+
 
             try
             {
