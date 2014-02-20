@@ -171,7 +171,8 @@
                                    array('$project' => array('nearby.name' => 1,
                                                              'nearby.checkinsCount' => 1,
                                                              'nearby.id' =>   1,
-                                                             'nearby.distance' => 1
+                                                             'nearby.distance' => 1,
+                                                             '_id' => 0
                                    ))
                 );
 
