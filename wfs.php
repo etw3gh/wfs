@@ -167,7 +167,7 @@
                 $agg_array = array(array('$unwind' => '$nearby'),
                                    array('$match' => array('username' => $username)),
                                    array('$sort' => array('nearby.checkinsCount' => -1)),
-                                   array('$limit' => $how_many),
+                                   array('$limit' => (int) $how_many),
                                    array('$project' => array('nearby.name' => 1,
                                                              'nearby.checkinsCount' => 1,
                                                              'nearby.id' =>   1,
@@ -178,7 +178,7 @@
 
                 $aggregate = $nearby_venues->aggregate( $agg_array );
 
-                return array('response' => 'ok', 'top5' => $aggregate);
+                return array('response' => 'ok', 'top_venues' => $aggregate);
             }
             catch(MongoCursorException $e)
             {
