@@ -98,15 +98,11 @@
                     }
                     catch(MongoCursorException $e)
                     {
-                        return array('response' => 'login with error for soldier added');
+                        return array('response' => 'ok', 'daily_soldier' => 'fail');
                     }
-
                 }
-
                 return array('response' => 'ok');
             }
-
-
         }    
 
         public function roll_dice()
@@ -167,14 +163,11 @@
                     }
                     else
                     {
-
                         $insert_array[$key] = (string) $value;
-
                     }
                 }
                 array_push($final_insert_array, $insert_array);
             }
-
 
             try
             {
@@ -198,10 +191,7 @@
                                                              'nearby.id' =>   1,
                                                              'nearby.distance' => 1,
                                                              '_id' => 0
-                                   )),
-
-
-                );
+                                   )));
 
                 $aggregate = $nearby_venues->aggregate( $agg_array );
 
