@@ -1,0 +1,5 @@
+Cron tasks are kept out of publically accessible parts of the app and are not in this repo
+
+List of cron tasks + description
+
+cron_venues.php     Add a soldier to each venue at a secret time each day
