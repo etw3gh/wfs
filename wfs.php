@@ -44,6 +44,14 @@
             $insert_array = null;
 
             try{
+                $my_venues = array('id' => '',
+                                   'soldiers_placed' => 0,
+
+
+
+                );
+
+
                 $insert_array = array('username' => (string) $username,
                                       'password' => (string) $password,
                                       'first' => (string) $first,
@@ -52,7 +60,7 @@
                                       'lng' => (string) $lng,
                                       'soldiers' => 1,
                                       'last_daily_soldier' => date('U'),
-                                      'venues' => array());
+                                      'venues' => $my_venues);
 
                 $users->insert($insert_array);
                 $return_code = 'ok';
@@ -259,7 +267,7 @@
             }
             catch(MongoCursorException $e)
             {
-                return array('response' => 'fail', 'reason' => 'top5');
+                return array('response' => 'fail', 'reason' => 'nearby_venues');
             }
 
 
