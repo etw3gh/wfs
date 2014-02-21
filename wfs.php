@@ -76,7 +76,7 @@
 
             if(is_null($login_query))
             {
-                return array("response" => "fail");
+                return array('response' => 'fail');
             }
             else
             {
@@ -89,13 +89,19 @@
                 {
                     #issue new soldier to user
                     #db.users.update({username: 'bob1'},{$inc: {soldiers:1 }})
-
-                    $users->update(array('username'=> (string) $username),
+                    try
+                    {
+                        $users->update(array('username'=> (string) $username),
                                    array('$inc' => array('soldiers' => $soldiers_per_day)));
+                    }
+                    catch(MongoCursorException $e)
+                    {
+                        return array('response' => 'no soldier');
+                    }
 
                 }
 
-                return array("response" => 'ok');
+                return array('response' => 'ok');
             }
 
 
