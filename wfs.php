@@ -32,6 +32,7 @@
                                       'lat' => (string) $lat,
                                       'lng' => (string) $lng,
                                       'soldiers' => 1,
+                                      'last_daily_soldier' => date('U'),
                                       'venues' => array());
 
                 $users->insert($insert_array);
@@ -65,6 +66,8 @@
             $users = $wfs->selectCollection('users');
             $users->ensureIndex(array("username" => 1), array("unique" => 1));
 
+            $seconds_per_day = 24 * 60 * 60;
+
             $login_query = $users->findOne(array("username" => (string) $username,
                                                  "password" => (string) $password));
 
@@ -77,7 +80,8 @@
                 #give the user his soldier for the day
                 #check to see if it has already not been given
 
-
+                print $login_query['last_daily_soldier'];
+                print $login_query['last_daily_soldier'] - $seconds_per_day;
 
                 return array("response" => 'ok');
             }
