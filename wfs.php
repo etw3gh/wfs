@@ -92,6 +92,7 @@
          *
          * checks a user in according to foursquare id
          *
+         * @return array
          */
         public function wfs_checkin($id, $username)
         {
@@ -110,7 +111,7 @@
             print_r($response);
 
 
-
+            return array('response' => 'still testing');
 
 
         }
