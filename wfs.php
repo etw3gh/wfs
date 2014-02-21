@@ -84,7 +84,51 @@
                 return array("response" => (string) $return_code);
             }
         }
- 
+
+
+        /**
+         * @param $id unique foursquare id
+         * @param $username unique wfs username
+         *
+         * checks a user in according to foursquare id
+         *
+         */
+        public function wfs_checkin($id, $username)
+        {
+            //Foursquare setup
+            require_once('../../../secret.php');
+            $foursquare = new FoursquareAPI(CLIENT_ID, CLIENT_SECRET);
+            //OBTAIN A VENUE BY VENUE ID
+            $response = $foursquare->GetPublic("venues/$id");
+            $the_venue = json_decode($response);
+
+            //DB setup
+            $mongo = new MongoClient();
+            $wfs = $mongo->selectDB('wfs');
+            $venues_db = $wfs->selectCollection('venues');
+
+            print_r($response);
+
+
+
+
+
+        }
+
+
+        /**
+         * @param $username
+         * assume a player may be at only one location at any given time
+         * thus to checkout we just need the username
+         */
+        public function wfs_checkout($username)
+        {
+
+
+        }
+
+
+
 
         /**
          * @param $username
@@ -139,31 +183,6 @@
             }
         }
 
-
-        /**
-         * @param $id unique foursquare id
-         * @param $username unique wfs username
-         *
-         * checks a user in according to foursquare id
-         *
-         */
-        public function wfs_checkin($id, $username)
-        {
-
-
-        }
-
-
-        /**
-         * @param $username
-         * assume a player may be at only one location at any given time
-         * thus to checkout we just need the username
-         */
-        public function wfs_checkout($username)
-        {
-
-
-        }
 
 
 
