@@ -25,17 +25,12 @@
          * @param $first
          * @param $last
          *
-         * LAT AND LONG MAY BE ELIMINATED FROM THIS METHOD
-         * @param null $lat
-         * @param null $lng
-         *
-         *
          * @param string $full_response
          * @return array|null
          *
          * IMPORTANT:  please md5 encode the password
          */
-        public function register_user($username, $password, $first, $last, $lat=null, $lng=null, $full_response='false') 
+        public function register_user($username, $password, $first, $last, $full_response='false')
         {
             //must be repeated for each api endpoint function due to RestServer functionality
             $mongo = new MongoClient();
@@ -58,8 +53,6 @@
                                       'password' => (string) $password,
                                       'first' => (string) $first,
                                       'last' => (string) $last,
-                                      'lat' => (string) $lat,
-                                      'lng' => (string) $lng,
                                       'soldiers' => 1,
                                       'last_daily_soldier' => date('U'),
                                       'venues' => $my_venues);
@@ -271,7 +264,7 @@
          * @param int $how_many
          * @return array
          */
-        public function nearby_venues($lat, $lng, $username, $how_many=5)
+        public function nearby_venues($lat, $lng, $username, $how_many)
         {
             require_once('../../../secret.php');
             $foursquare = new FoursquareAPI(CLIENT_ID, CLIENT_SECRET);

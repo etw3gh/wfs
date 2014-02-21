@@ -23,17 +23,17 @@ register_user:
         lat
         lng  
 
-    http://wfs.openciti.ca?method=register_user&username=myusername2&password=LA26235612356SHFGSANN&first=Joe&last=Blow&lat=49.0&lng=-78.0&full_response=true
+    http://wfs.openciti.ca?method=register_user&username=myusername2&password=LA26235612356SHFGSANN&first=Joe&last=Blow&full_response=true
 
     response:
-    {"username":"myusername2","password":"LA26235612356SHFGSANN","first":"Joe","last":"Blow","lat":"49.0","lng":"-78.0","_id":{"$id":"530538d23a3cadf50223c709"},"response":"ok"}
+    {"username":"myusername2","password":"LA26235612356SHFGSANN","first":"Joe","last":"Blow","_id":{"$id":"530538d23a3cadf50223c709"},"response":"ok"}
 
     try again with same info:
     {"response":"duplicate user"}
 
     set full_response to 'false'
 
-    http://wfs.openciti.ca?method=register_user&username=stevejobs2&password=LA26235612356SHFGSANN&first=Steve&last=Jobs&lat=49.0&lng=-78.0&full_response=false
+    http://wfs.openciti.ca?method=register_user&username=stevejobs2&password=LA26235612356SHFGSANN&first=Steve&last=Jobs&full_response=false
 
     {"response":"ok"}
 
@@ -88,6 +88,22 @@ nearby_venues (return from top of sorted list according to 'how_many'):
 
 
     "ok":1}}
+
+
+
+WarFareSquare Checkin / Checkout
+
+    wfs_checkin
+        username
+        id
+
+    wfs_checkout (assumes user is only checked into 1 place)
+        username
+
+
+
+Game Logic Methods
+---
 
 roll_dice:
     
