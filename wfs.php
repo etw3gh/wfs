@@ -81,6 +81,9 @@
 
         public function roll_dice()
         {
+
+
+
         }
 
         
@@ -143,7 +146,6 @@
             }
 
 
-
             try
             {
                 $nearby_venues->insert(array('username' => (string) $username, 'nearby' => $final_insert_array));
@@ -154,40 +156,21 @@
                 return array('response' => 'fail', 'reason' => 'insert');
             }
 
-
-
             //get top venues according to checkinsCount.
-            //only get 'how_many' off the top of the list
-
-
-
-            /* javascript shell command for posterity & testing
-            > db.nearby.aggregate( {$unwind: "$nearby"},
-                                   {$sort: {'nearby.checkinsCount':-1}},
-                                   {$limit:5},
-                                   {$project:
-                                        {'nearby.name':1,
-                                         'nearby.checkinsCount':1,
-                                         "nearby.id":1 ,
-                                         "nearby.distance":1}} )
-
-            */
-
-
-
-            //aggregate results and construct reply
             try
             {
                 $agg_array = array(array('$unwind' => '$nearby'),
                                    array('$match' => array('username' => (string) $username)),
-                                   array('$sort' => array('nearby.checkinsCount' => -1)),
+                                   array('$sort' => array('result.nearby.checkinsCount' => -1)),
                                    array('$limit' => (int) $how_many),
                                    array('$project' => array('nearby.name' => 1,
                                                              'nearby.checkinsCount' => 1,
                                                              'nearby.id' =>   1,
                                                              'nearby.distance' => 1,
                                                              '_id' => 0
-                                   ))
+                                   )),
+
+
                 );
 
                 $aggregate = $nearby_venues->aggregate( $agg_array );
