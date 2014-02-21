@@ -1,7 +1,8 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: root
- * Date: 20/02/14
- * Time: 6:59 PM
- */ 
+    //Intended to be run as a cron task
+    //run every 24 hours at a certain time
+
+    #TODO
+    //add soldiers to venues
+    //add soldiers to players
+

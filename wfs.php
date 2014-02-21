@@ -30,7 +30,9 @@
                                       'first' => (string) $first ,
                                       'last' => (string) $last,
                                       'lat' => (string) $lat,
-                                      'lng' => (string) $lng);
+                                      'lng' => (string) $lng,
+                                      'soldiers' => 1,
+                                      'venues' => array());
 
                 $users->insert($insert_array);
                 $return_code = 'ok';
@@ -63,16 +65,20 @@
             $users = $wfs->selectCollection('users');
             $users->ensureIndex(array("username" => 1), array("unique" => 1));
 
-            $login_query = $users->findOne(array("username" => (string) $username, "password" => (string) $password));
+            $login_query = $users->findOne(array("username" => (string) $username,
+                                                 "password" => (string) $password));
 
-            print_r($login_query);
-            
             if(is_null($login_query))
             {
                 return array("response" => "fail");
             }
             else
             {
+                #give the user his soldier for the day
+                #check to see if it has already not been given
+
+
+
                 return array("response" => 'ok');
             }
 
