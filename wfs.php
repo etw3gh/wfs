@@ -108,7 +108,21 @@
             $wfs = $mongo->selectDB('wfs');
             $venues_db = $wfs->selectCollection('venues');
 
-            print_r($response);
+            #print_r($response);
+
+            try{
+                $venues_db->insert($response);
+            }
+            catch (MongoCursorException $e)
+            {
+                print $e->getMessage();
+                return array('response' => 'MongoCursor');
+            }
+            catch (MongoException $e)
+            {
+                print $e->getMessage();
+                return array('response' => 'Mongo');
+            }
 
 
             return array('response' => 'still testing');
