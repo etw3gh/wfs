@@ -47,8 +47,8 @@ login_user:
 nearby_venues (return from top of sorted list according to 'how_many'):
 
     nearby_venues
-        latitude
-        longitude
+        lat
+        lng
         username
         how_many
 
