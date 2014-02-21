@@ -20,8 +20,6 @@ register_user:
         password
         first
         last
-        lat
-        lng  
 
     http://wfs.openciti.ca?method=register_user&username=myusername2&password=LA26235612356SHFGSANN&first=Joe&last=Blow&full_response=true
 
