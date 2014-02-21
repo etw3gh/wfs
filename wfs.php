@@ -27,7 +27,7 @@
             try{
                 $insert_array = array('username' => (string) $username,
                                       'password' => (string) $password,
-                                      'first' => (string) $first ,
+                                      'first' => (string) $first,
                                       'last' => (string) $last,
                                       'lat' => (string) $lat,
                                       'lng' => (string) $lng,
@@ -87,16 +87,18 @@
 
                 if ($time_since_last_soldier > $seconds_per_day)
                 {
-                    #issue new soldier to user
+                    #issue new soldier to user and update the last_daily_soldier field
                     #db.users.update({username: 'bob1'},{$inc: {soldiers:1 }})
                     try
                     {
                         $users->update(array('username'=> (string) $username),
-                                   array('$inc' => array('soldiers' => $soldiers_per_day)));
+                                   array('$inc' => array('soldiers' => $soldiers_per_day)),
+                                   array('$set' => array('last_daily_soldier' => date('U')))
+                        );
                     }
                     catch(MongoCursorException $e)
                     {
-                        return array('response' => 'no soldier');
+                        return array('response' => 'login with error for soldier added');
                     }
 
                 }

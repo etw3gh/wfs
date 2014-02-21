@@ -4,5 +4,5 @@
 
     #TODO
     //add soldiers to venues
-    //add soldiers to players
+
 
