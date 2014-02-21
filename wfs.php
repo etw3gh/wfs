@@ -11,6 +11,8 @@
      *
      * @TODO add wfs api key to all urls and methods to prevent gaming the system
      *
+     * @TODO refactoring of Foursquare responses
+     *
      */
     class WarFareSquare
     {
@@ -96,6 +98,8 @@
          */
         public function wfs_checkin($id, $username)
         {
+            $testing = true;
+
             //Foursquare setup
             require_once('../../../secret.php');
             $foursquare = new FoursquareAPI(CLIENT_ID, CLIENT_SECRET);
@@ -108,7 +112,19 @@
             $wfs = $mongo->selectDB('wfs');
             $venues_db = $wfs->selectCollection('venues');
 
-            #print_r($response);
+            if ($testing)
+            {
+                print "CODE:         " . $the_venue->meta->code . "<br />";
+                print "FourSqure ID: " . $the_venue->response->venue->id . "<br />";
+                print "Name:         " . $the_venue->response->venue->name . "<br />";
+                print "Lat:          " . $the_venue->response->venue->location->lat . "<br />";
+                print "Lng:          " . $the_venue->response->venue->location->lng . "<br />";
+
+                print "<hr>";
+
+                print_r($response);
+            }
+
 
             try{
                 $venues_db->insert($response);
