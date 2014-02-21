@@ -2,18 +2,35 @@
     require_once("FoursquareAPI.class.php");
     require_once('RestServer.php');
 
-    //important: convert all data to string before db ops
-
-    // http://wfs.openciti.ca?method=MethodName&param1=Param1Value&param2=Param2Value
+    /**
+     * Class WarFareSquare
+     *
+     * http://wfs.openciti.ca?method=MethodName&param1=Param1Value&param2=Param2Value
+     *
+     * IMPORTANT: convert all data to string before db ops
+     *
+     */
     class WarFareSquare
     {
         //example of a function
         public function hello($name){return(array("response" => "Hello $name"));}
 
-        
-        #each endpoint has its own function
-        
-        //please md5 encode the password
+        /**
+         * @param $username
+         * @param $password
+         * @param $first
+         * @param $last
+         *
+         * LAT AND LONG MAY BE ELIMINATED FROM THIS METHOD
+         * @param null $lat
+         * @param null $lng
+         *
+         *
+         * @param string $full_response
+         * @return array|null
+         *
+         * IMPORTANT:  please md5 encode the password
+         */
         public function register_user($username, $password, $first, $last, $lat=null, $lng=null, $full_response='false') 
         {
             //must be repeated for each api endpoint function due to RestServer functionality
@@ -58,7 +75,14 @@
             }
         }
  
-        //remember to md5 encode password
+
+        /**
+         * @param $username
+         * @param $password
+         * @return array
+         *
+         * IMPORTANT:   remember to md5 encode password
+         */
         public function login_user($username, $password)
         {
             $mongo = new MongoClient();
@@ -103,17 +127,51 @@
                 }
                 return array('response' => 'ok');
             }
-        }    
+        }
 
-        public function roll_dice()
+
+        /**
+         * @param $id unique foursquare id
+         * @param $username unique wfs username
+         *
+         * checks a user in according to foursquare id
+         *
+         */
+        public function wfs_checkin($id, $username)
         {
-
 
 
         }
 
-        
 
+        /**
+         * @param $username
+         * assume a player may be at only one location at any given time
+         * thus to checkout we just need the username
+         */
+        public function wfs_checkout($username)
+        {
+
+
+        }
+
+
+
+
+
+        /**
+         * api method to return $how_many venues with the highest number of 4s checkins
+         *
+         * grabs json from foursquare and performs aggregations on the results in mongodb
+         *
+         *
+         *
+         * @param $lat
+         * @param $lng
+         * @param $username
+         * @param int $how_many
+         * @return array
+         */
         public function nearby_venues($lat, $lng, $username, $how_many=5)
         {
             require_once('../../../secret.php');
@@ -204,6 +262,17 @@
 
 
         }
+
+
+
+        //Gaming Methods-------------------------------------------------------------------
+
+
+        public function roll_dice()
+        {
+        }
+
+
 
 
     } //end WarFareSquare class
