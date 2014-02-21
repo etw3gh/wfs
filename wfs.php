@@ -162,6 +162,7 @@
                 else
                 {
                     //perform update if venue exists
+                    //pushes player onto player list
                     $venues_db->update(array('id' => $id),
                                        array('$push' => array('players' => $username))
                     );
@@ -170,12 +171,12 @@
             catch (MongoCursorException $e)
             {
                 print $e->getMessage();
-                return array('response' => 'MongoCursor');
+                return array('response' => 'fail', 'reason' => 'MongoCursor');
             }
             catch (MongoException $e)
             {
                 print $e->getMessage();
-                return array('response' => 'Mongo');
+                return array('response' => 'fail', 'reason' => 'Mongo');
             }
 
 
