@@ -68,6 +68,9 @@
 
             $seconds_per_day = 24 * 60 * 60;
 
+            #possibly add as field in user document
+            $soldiers_per_day = 1;
+
             $login_query = $users->findOne(array("username" => (string) $username,
                                                  "password" => (string) $password));
 
@@ -80,8 +83,17 @@
                 #give the user his soldier for the day
                 #check to see if it has already not been given
 
-                print $login_query['last_daily_soldier'];
-                print $login_query['last_daily_soldier'] - $seconds_per_day;
+                $time_since_last_soldier = $login_query['last_daily_soldier'] - date('U');
+
+                if ($time_since_last_soldier > $seconds_per_day)
+                {
+                    #issue new soldier to user
+                    #db.users.update({username: 'bob1'},{$inc: {soldiers:1 }})
+
+                    $users->update(array('username'=> (string) $username),
+                                   array('$inc' => array('soldiers' => $soldiers_per_day)));
+
+                }
 
                 return array("response" => 'ok');
             }
