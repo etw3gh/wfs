@@ -9,6 +9,8 @@
      *
      * IMPORTANT: convert all data to string before db ops
      *
+     * @TODO add wfs api key to all urls and methods to prevent gaming the system
+     *
      */
     class WarFareSquare
     {
