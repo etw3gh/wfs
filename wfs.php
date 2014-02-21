@@ -111,23 +111,61 @@
             $mongo = new MongoClient();
             $wfs = $mongo->selectDB('wfs');
             $venues_db = $wfs->selectCollection('venues');
+            $venues_db->ensureIndex(array('id' => 1), array('unique' => 1));
+
+            //return fail on bad return code from foursquare
+            if ( (int) $the_venue->meta->code != 200)
+                return array('response' => 'fail');
+
+            //construct associative array for db insertion
+            $insert_array = array();
+            $insert_array['id'] = $the_venue->response->venue->id;
+            $insert_array['name'] = $the_venue->response->venue->name;
+            $insert_array['lat'] = $the_venue->response->venue->location->lat;
+            $insert_array['lng'] = $the_venue->response->venue->location->lng;
+            $insert_array['checkins'] = $the_venue->response->venue->stats->checkinsCount;
+            $insert_array['users'] = $the_venue->response->venue->stats->usersCount;
+            $insert_array['tips'] = $the_venue->response->venue->stats->tipCount;
+            //construct wfs attributes
+            $insert_array['soldiers'] = 0;
+            $insert_array['added_on'] = date('U');
+            $insert_array['mayor'] = '';
+            //only used for new venue
+            $insert_array['players'] = array($username);
 
             if ($testing)
             {
-                print "CODE:         " . $the_venue->meta->code . "<br />";
-                print "FourSqure ID: " . $the_venue->response->venue->id . "<br />";
-                print "Name:         " . $the_venue->response->venue->name . "<br />";
-                print "Lat:          " . $the_venue->response->venue->location->lat . "<br />";
-                print "Lng:          " . $the_venue->response->venue->location->lng . "<br />";
-
-                print "<hr>";
-
-                print_r($response);
+                print "CODE:         " . $insert_array['code'] . "<br />";
+                print "FourSqure ID: " .  $insert_array['id']  . "<br />";
+                print "Name:         " . $insert_array['name'] . "<br />";
+                print "Lat:          " . $insert_array['lat'] . "<br />";
+                print "Lng:          " . $insert_array['lng'] . "<br />";
+                print "Checkins Count: " . $insert_array['checkins'] . "<br />";
+                print "Users Count: " . $insert_array['users'] . "<br />";
+                print "Tip Count: " . $insert_array['tips'] . "<br />";
             }
 
-
-            try{
-                $venues_db->insert($response);
+            try
+            {
+                //check to see if venue exists (ie: min 1 wfs checkin)
+                $exists_query = $venues_db->findOne(array('id' => $id));
+                if (is_null($exists_query))
+                {
+                    //perform insert if no venue exists
+                    $venues_db->insert($insert_array);
+                    return array('response' => 'ok',
+                                 'stats' => array('soldiers' => $exists_query['soldiers'],
+                                                  'mayor' => $exists_query['mayor'],
+                                                  'other_stuff' => 'to be determined',
+                                 ));
+                }
+                else
+                {
+                    //perform update if venue exists
+                    $venues_db->update(array('id' => $id),
+                                       array('$push' => array('players' => $username))
+                    );
+                }
             }
             catch (MongoCursorException $e)
             {
