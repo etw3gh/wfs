@@ -85,8 +85,8 @@
 
 
         /**
-         * @param $id unique foursquare id for the venue the user wishes to check into
-         * @param $username unique wfs username
+         * @param $id string unique foursquare id for the venue the user wishes to check into
+         * @param $username string unique wfs username
          *
          * checks a warfaresquare user to a venue
          * according to the foursquare id of that venue
@@ -180,20 +180,19 @@
 
 
         /**
-         * @param $username
+         * @param $id           string representing unique foursquare id
+         * @param $username     string respresenting unique warfoursquare username
          *
          * method to check a user out of a venue
          * simply pulls their username from venues 'players' array
          *
          * assume a player may be at only one location at any given time
-         * thus to checkout we just need the username
-         *
          *
          * @TODO determine what game stats need preserving on the server
          *
          * @return array
          */
-        public function wfs_checkout($username)
+        public function wfs_checkout($id, $username)
         {
             //database setup
             $mongo = new MongoClient();
@@ -299,7 +298,7 @@
             $wfs = $mongo->selectDB('wfs');
             $nearby_venues = $wfs->selectCollection('nearby');
 
-
+            //add or omit category restrictions
             if (strtolower($restrict_categories) == 'true')
             {
                 //prepare foursquare categories
