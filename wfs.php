@@ -4,7 +4,13 @@
 
     /**
      * Class WarFareSquare
+     * 
+     * A class that holds api methods which serves to decouple the application logic
+     * from the application implementation(s) and platform(s). 
      *
+     * Serves json strings back to whomever calls the api methods   
+     * 
+     * sample api call:
      * http://wfs.openciti.ca?method=MethodName&param1=Param1Value&param2=Param2Value
      *
      * IMPORTANT: convert all data to string before db ops
@@ -32,7 +38,7 @@
          */
         public function register_user($username, $password, $first, $last, $full_response='false')
         {
-            //must be repeated for each api endpoint function due to RestServer functionality
+            //database setup
             $mongo = new MongoClient();
             $wfs = $mongo->selectDB('wfs');
             $users = $wfs->selectCollection('users');
@@ -40,7 +46,8 @@
 
             $insert_array = null;
 
-            try{
+            try
+            {
                 $my_venues = array('id' => '',
                                    'soldiers_placed' => 0);
 
@@ -78,10 +85,11 @@
 
 
         /**
-         * @param $id unique foursquare id
+         * @param $id unique foursquare id for the venue the user wishes to check into
          * @param $username unique wfs username
          *
-         * checks a user in according to foursquare id
+         * checks a warfaresquare user to a venue
+         * according to the foursquare id of that venue
          *
          * @return array
          */
@@ -96,7 +104,7 @@
             $response = $foursquare->GetPublic("venues/$id");
             $the_venue = json_decode($response);
 
-            //DB setup
+            //database setup
             $mongo = new MongoClient();
             $wfs = $mongo->selectDB('wfs');
             $venues_db = $wfs->selectCollection('venues');
@@ -104,7 +112,9 @@
 
             //return fail on bad return code from foursquare
             if ( (int) $the_venue->meta->code != 200)
+            {
                 return array('response' => 'fail');
+            }
 
             //construct associative array from foursquare response for db insertion
             $insert_array = array();
@@ -138,40 +148,34 @@
             {
                 //check to see if venue exists (ie: min 1 wfs checkin)
                 $exists_query = $venues_db->findOne(array('id' => $id));
+
                 if (is_null($exists_query))
                 {
                     //perform insert if no venue exists
                     $venues_db->insert($insert_array);
+
                     return array('response' => 'ok',
                                  'stats' => array('soldiers' => $exists_query['soldiers'],
                                                   'mayor' => $exists_query['mayor'],
-                                                  'other_stuff' => 'to be determined',
-                                 ));
+                                                  'other_stuff' => 'to be determined'));
                 }
                 else
                 {
                     //perform update if venue exists
                     //pushes player onto player list
                     $venues_db->update(array('id' => $id),
-                                       array('$push' => array('players' => $username))
-                    );
+                                       array('$push' => array('players' => $username)));
                 }
             }
             catch (MongoCursorException $e)
             {
-                print $e->getMessage();
-                return array('response' => 'fail', 'reason' => 'MongoCursor');
+                return array('response' => 'fail', 'reason' => $e->getMessage());
             }
             catch (MongoException $e)
             {
-                print $e->getMessage();
-                return array('response' => 'fail', 'reason' => 'Mongo');
+                return array('response' => 'fail', 'reason' => $e->getMessage());
             }
-
-
-            return array('response' => 'still testing');
-
-
+            return array('response' => 'ok');
         }
 
 
@@ -191,43 +195,49 @@
          * @param $password
          * @return array
          *
+         * Logs in an existing warfoursquare user to the server 
+         *
          * IMPORTANT:   remember to md5 encode password
          */
         public function login_user($username, $password)
         {
+            //database setup
             $mongo = new MongoClient();
             $wfs = $mongo->selectDB('wfs');
             $users = $wfs->selectCollection('users');
             $users->ensureIndex(array("username" => 1), array("unique" => 1));
 
+            //calculate the seconds in a day for soldier calculations
             $seconds_per_day = 24 * 60 * 60;
 
-            #possibly add as field in user document
+            //possibly add as field in user document
             $soldiers_per_day = 1;
 
+            //query database for the user
             $login_query = $users->findOne(array("username" => (string) $username,
                                                  "password" => (string) $password));
 
+            //return 'fail' response if either username or password or both are incorrect or not found
             if(is_null($login_query))
             {
                 return array('response' => 'fail');
             }
+            //log the user in and see if they deserve a soldier
             else
             {
-                #give the user his soldier for the day
-                #check to see if it has already not been given
+                //give the user his soldier for the day
+                //check to see if it has already not been given
 
                 $time_since_last_soldier = $login_query['last_daily_soldier'] - date('U');
 
                 if ($time_since_last_soldier > $seconds_per_day)
-                {
-                    #issue new soldier to user and update the last_daily_soldier field
-                    #db.users.update({username: 'bob1'},{$inc: {soldiers:1 }})
+                {                    
                     try
                     {
+                        //issue new soldier to user and update the last_daily_soldier field
                         $users->update(array('username'=> (string) $username),
-                                           array('$inc' => array('soldiers' => $soldiers_per_day)),
-                                           array('$set' => array('last_daily_soldier' => date('U'))));
+                                       array('$inc' => array('soldiers' => $soldiers_per_day)),
+                                       array('$set' => array('last_daily_soldier' => date('U'))));
                     }
                     catch(MongoCursorException $e)
                     {
@@ -239,11 +249,11 @@
         }
 
         /**
-         * api method to return $how_many venues with the highest number of 4s checkins
+         * method to return $how_many venues with the highest number of foursquare checkins
          *
          * grabs json from foursquare and performs aggregations on the results in mongodb
-         *
-         *
+         * presents nicely sorted (by foursquare checkins) json array to the calling application
+         * and only includes a few important details of the original response 
          *
          * @param $lat
          * @param $lng
@@ -304,19 +314,27 @@
                     return array('response' => 'fail', 'reason' => 'other database error');
                 }
             }
-
-            //get top venues according to checkins and limit to $how_many
+            
             try
             {
-                $agg_array = array( array('$unwind' => '$venues'),
+                /*
+                    AGGREGATION PIPELINE
+                    $unwind: used to access nested array 'venues'
+                    $sort: -1 used for descending order sort of venues[checkins]
+                    $limit: returns only however many the function is asked for ($how_many)
+                    $project: create projection of 'columns' to exclude (0) mongodb _id 
+                              and include (1) the venues array    
+                */
+                $agg_array = array( array('$unwind' => '$venues'),                      
                                     array('$sort' => array('venues.checkins' =>-1 )),
                                     array('$limit' => (int) $how_many),
                                     array('$project' =>
                                             array('_id' => 0,
                                                 'venues' => 1)));
-
+                //perform the aggregation
                 $aggregate = $nearby_venues->aggregate( $agg_array );
 
+                //return the aggregation as the value for key 'top_venues'
                 return array('response' => 'ok', 'top_venues' => $aggregate);
             }
             catch(MongoCursorException $e)
