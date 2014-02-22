@@ -183,12 +183,35 @@
          * @param $username
          * assume a player may be at only one location at any given time
          * thus to checkout we just need the username
+         *
+         * @return array
          */
         public function wfs_checkout($username)
         {
+            //database setup
+            $mongo = new MongoClient();
+            $wfs = $mongo->selectDB('wfs');
+            $venues_db = $wfs->selectCollection('venues');
+            $venues_db->ensureIndex(array('id' => 1), array('unique' => 1));
 
+            try
+            {
+                $venues_db->update(array('id' => $id),
+                                   array('$push' => array('players' => $username)));
+            }
 
+            catch (MongoCursorException $e)
+            {
+                return array('response' => 'fail', 'reason' => $e->getMessage());
+            }
+            catch (MongoException $e)
+            {
+                return array('response' => 'fail', 'reason' => $e->getMessage());
+            }
+            return array('response' => 'ok');
         }
+
+
 
         /**
          * @param $username
