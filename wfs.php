@@ -19,6 +19,8 @@
      *
      * @TODO harmonize all responses to: response : ok/fail , reason : 'blah ...'
      *
+     *
+     * full form array() is used instead of [] for better readability in phpStorm
      */
     class WarFareSquare
     {
@@ -136,7 +138,9 @@
             ///////////////////////////////////////////////////////////////////////////////////
 
             $insert_array['soldiers'] = array('owner' => '', 'number' => 0);
-            $insert_array['added_on'] = date('U');
+            $insert_array['daily_soldiers'] = 0;
+            $insert_array['daily_soldiers_added_on'] = date('U'); #check field in cron_venues.php
+            $insert_array['daily_soldiers_removed_on'] = '';
             $insert_array['mayor'] = '';
             #$insert_array[''] = 0;
             //only used for new venue
@@ -415,12 +419,15 @@
         /**
          * method to allow the venue's controlling user to pickup the soldier.
          *
-         * @param $id
-         * @param $username
+         * @param $id       string    unique foursquare venue id
+         * @param $username string    unique warfoursquare username
          *
          * @return array
+         *
+         * @TODO try catch around mongodb operations
+         *
          */
-        public function pickup_soldier($id, $username)
+        public function pickup_soldiers($id, $username)
         {
             //db setup
             $mongo = new MongoClient();
@@ -428,10 +435,82 @@
             $venues_db = $wfs->selectCollection('venues');
             $users_db = $wfs->selectCollection('users');
 
+            //determine if our user is the mayor of location supplied by $id
+            $is_mayor_query = $venues_db->findOne(array('mayor' => $username, 'id' => $id));
 
+            if(!is_null($is_mayor_query))
+            {
+                $soldiers_available = $is_mayor_query['daily_soldiers'];
+                if ($soldiers_available > 0)
+                {
+                    //first add to user
+                    $users_db->update(array('username' => $username),
+                                      array('$inc' => array('soldiers' => $soldiers_available)));
 
+                    //remove from venue (sets field to zero
+                    //TODO determine if soldier related timestamps need altering
+                    $venues_db->update(array('id' => $id),
+                                       array('$set' => array('daily_soldiers' => 0,
+                                                             'daily_soldiers_removed_on' => date('U'))));
+                }
+                else
+                {
+                    return array('response' => 'fail', 'reason' => 'no soldiers');
+                }
+            }
+            else
+            {
+                return array('response' => 'fail', 'reason' => 'user not mayor');
+            }
+
+            //TODO return stats . . .
             return array('response' => 'ok');
         }
+
+        /**
+         * Method that allows a venue's controlling user to place defending soldiers
+         *
+         * @param $id       string    unique foursquare venue id
+         * @param $username string    unique warfoursquare username
+         * @param $number   string of an integer representing the number of soldiers to place
+         * @return array
+         *
+         * @TODO try / catch around mongodb operations
+         */
+        public function place_soldiers($id, $username, $number)
+        {
+            //db setup
+            $mongo = new MongoClient();
+            $wfs = $mongo->selectDB('wfs');
+            $venues_db = $wfs->selectCollection('venues');
+            $users_db = $wfs->selectCollection('users');
+
+            //determine if our user is the mayor of location supplied by $id
+            $is_mayor_query = $venues_db->findOne(array('mayor' => $username, 'id' => $id));
+
+            //according to gdd maximum 10 dice / soldiers per venue
+            $max_placement = 10;
+
+            $success_array = array('response' => 'ok');
+
+            ////////////////////////////
+            ///////////////work stopped here
+
+            if(!is_null($is_mayor_query))
+            {
+
+            }
+            else
+            {
+
+            }
+            //TODO return stats . . .
+
+            if ($number > $max_placement) $success_array['warning'] = "$number requested, $max_placement placed";
+
+            return $success_array;
+        }
+
         public function roll_dice()
         {
         }
