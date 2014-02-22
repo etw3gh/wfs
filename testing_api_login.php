@@ -13,7 +13,19 @@
     $lng = -79.378499;
     
     //prepare params
-    $params = array('ll' => "$lat, $lng") ;
+
+    $food_4s_id = '4d4b7105d754a06374d81259';
+    $arts_4s_id = '4d4b7104d754a06370d81259';
+    $bar_4s_id  = '4d4b7105d754a06376d81259';
+    $shopping_4s_id = '4d4b7105d754a06378d81259';
+    $travel_4s_id = '4d4b7105d754a06379d81259';
+
+    $categories = $food_4s_id . ',' . $arts_4s_id . ',' . $bar_4s_id . ',' . $shopping_4s_id . ',' . $travel_4s_id;
+
+        $params = array('ll' => "$lat, $lng",
+                        'categoryId' => $categories,
+                        ' ' => 
+                        'radius' => 2000) ;
 
     // Perform a request to a public resource
     $response = $foursquare->GetPublic("venues/search",$params);

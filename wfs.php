@@ -13,6 +13,8 @@
      *
      * @TODO refactoring of Foursquare responses
      *
+     * @TODO harmonize all responses to: response : ok/fail , reason : 'blah ...'
+     *
      */
     class WarFareSquare
     {
@@ -286,6 +288,7 @@
             }
 
             //prepare default params
+            //TODO: determine if radius is sufficient and/or increase upon low results
             $params = array('ll' => "$lat, $lng", 'radius' => 2000);
 
             // Perform a request to a public resource
