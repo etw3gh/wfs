@@ -42,11 +42,7 @@
 
             try{
                 $my_venues = array('id' => '',
-                                   'soldiers_placed' => 0,
-
-
-
-                );
+                                   'soldiers_placed' => 0);
 
 
                 $insert_array = array('username' => (string) $username,
@@ -110,7 +106,7 @@
             if ( (int) $the_venue->meta->code != 200)
                 return array('response' => 'fail');
 
-            //construct associative array for db insertion
+            //construct associative array from foursquare response for db insertion
             $insert_array = array();
             $insert_array['id'] = $the_venue->response->venue->id;
             $insert_array['name'] = $the_venue->response->venue->name;
@@ -190,9 +186,6 @@
 
         }
 
-
-
-
         /**
          * @param $username
          * @param $password
@@ -233,9 +226,8 @@
                     try
                     {
                         $users->update(array('username'=> (string) $username),
-                                   array('$inc' => array('soldiers' => $soldiers_per_day)),
-                                   array('$set' => array('last_daily_soldier' => date('U')))
-                        );
+                                           array('$inc' => array('soldiers' => $soldiers_per_day)),
+                                           array('$set' => array('last_daily_soldier' => date('U'))));
                     }
                     catch(MongoCursorException $e)
                     {
@@ -317,11 +309,11 @@
             try
             {
                 $agg_array = array( array('$unwind' => '$venues'),
-                    array('$sort' => array('venues.checkins' =>-1 )),
-                    array('$limit' => (int) $how_many),
-                    array('$project' =>
-                        array('_id' => 0,
-                            'venues' => 1)));
+                                    array('$sort' => array('venues.checkins' =>-1 )),
+                                    array('$limit' => (int) $how_many),
+                                    array('$project' =>
+                                            array('_id' => 0,
+                                                'venues' => 1)));
 
                 $aggregate = $nearby_venues->aggregate( $agg_array );
 
