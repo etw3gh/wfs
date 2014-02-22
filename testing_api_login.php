@@ -24,7 +24,7 @@
 
         $params = array('ll' => "$lat, $lng",
                         'categoryId' => $categories,
-                        ' ' => 
+                        #' ' =>
                         'radius' => 2000) ;
 
     // Perform a request to a public resource
