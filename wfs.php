@@ -248,11 +248,6 @@
             }
         }
 
-
-
-
-
-
         /**
          * api method to return $how_many venues with the highest number of 4s checkins
          *
@@ -275,14 +270,12 @@
             $wfs = $mongo->selectDB('wfs');
             $nearby_venues = $wfs->selectCollection('nearby');
 
-            //clear previous searches no need to archive
-            //lazily erasing previous searches allows for last search to be kept on file
-            //may need to erase after each use...
+            //nearby venues not stored so delete entire collection before each use
             try
             {
-                $nearby_venues->remove(array('username' => (string) $username));
+                $nearby_venues->remove(array());
             }
-            catch (MongoCursorException $e)
+            catch (MongoException $e)
             {
                 #nop
             }
@@ -291,60 +284,46 @@
             //TODO: determine if radius is sufficient and/or increase upon low results
             $params = array('ll' => "$lat, $lng", 'radius' => 2000);
 
-            // Perform a request to a public resource
+            //Perform a request to a public resource
             $response = $foursquare->GetPublic("venues/search",$params);
             $venues = json_decode($response);
 
+            //prep mongo db document
+            $nearby_venues->insert(array('user' => $username, 'venues' => array() ));
 
-            $final_insert_array=  array();
-
-            #un-nest the response (a bit cleaner than pumping in json_decode($x, true)
-            foreach($venues->response->venues as $venue)
+            //push relevant venue details to doc
+            foreach ($venues->response->venues as $v)
             {
-                $insert_array = array();
-                foreach($venue as $key => $value)
+                $insert_array =array();
+                $insert_array['id'] = $v->id;
+                $insert_array['name'] = $v->name;
+                $insert_array['distance'] = $v->location->distance;
+                $insert_array['checkins'] = $v->stats->checkinsCount;
+
+                try
                 {
-                    if (is_object($key) or is_object($value))
-                    {
-                        foreach($value as $nested_key => $nested_value)
-                        {
-                            if (!is_object($nested_value))
-                            {
-                                $insert_array[$nested_key] = (string) $nested_value;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        $insert_array[$key] = (string) $value;
-                    }
+                    $nearby_venues->update(array('user' => $username),
+                        array('$push' => array('venues' => $insert_array )));
                 }
-                array_push($final_insert_array, $insert_array);
+                catch (MongoCursorException $e)
+                {
+                    return array('response' => 'fail', 'reason' => $e->getMessage());
+                }
+                catch (MongoException $e)
+                {
+                    return array('response' => 'fail', 'reason' => 'other database error');
+                }
             }
 
+            //get top venues according to checkins and limit to $how_many
             try
             {
-                $nearby_venues->insert(array('username' => (string) $username, 'nearby' => $final_insert_array));
-
-            }
-            catch(MongoCursorException $e)
-            {
-                return array('response' => 'fail', 'reason' => 'insert');
-            }
-
-            //get top venues according to checkinsCount.
-            try
-            {
-                $agg_array = array(array('$unwind' => '$nearby'),
-                                   array('$match' => array('username' => (string) $username)),
-                                   array('$sort' => array('result.nearby.checkinsCount' => -1)),
-                                   array('$limit' => (int) $how_many),
-                                   array('$project' => array('nearby.name' => 1,
-                                                             'nearby.checkinsCount' => 1,
-                                                             'nearby.id' =>   1,
-                                                             'nearby.distance' => 1,
-                                                             '_id' => 0
-                                   )));
+                $agg_array = array( array('$unwind' => '$venues'),
+                    array('$sort' => array('venues.checkins' =>-1 )),
+                    array('$limit' => (int) $how_many),
+                    array('$project' =>
+                        array('_id' => 0,
+                            'venues' => 1)));
 
                 $aggregate = $nearby_venues->aggregate( $agg_array );
 
@@ -354,11 +333,7 @@
             {
                 return array('response' => 'fail', 'reason' => 'nearby_venues');
             }
-
-
         }
-
-
 
         //Gaming Methods-------------------------------------------------------------------
 
