@@ -110,6 +110,21 @@ WarFareSquare Checkin / Checkout
         username
         id
 
+    http://wfs.openciti.ca/?method=wfs_checkin&id=4ad9ffbbf964a520091d21e3&username=stevejobs
+
+    TESTING output:
+        FourSqure ID: 4ad9ffbbf964a520091d21e3
+        Name: Jack Astor's Bar & Grill
+        Lat: 43.656543725005
+        Lng: -79.380058944225
+        Checkins Count: 8800
+        Users Count: 5212
+        Tip Count: 94
+   
+    {"response":"ok","stats":{"soldiers":null,"mayor":null,"other_stuff":"to be determined"}}
+
+
+
     wfs_checkout (assumes user is only checked into 1 place)
         username
 
