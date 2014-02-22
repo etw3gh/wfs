@@ -65,21 +65,21 @@
             }
             catch(MongoCursorException $e) 
             {
-                return array("response" => "duplicate user");
+                return array('response' => 'fail', 'reason' => 'duplicate user');
             }
             catch(MongoException $e)
             {
-                return array("response" => "fail");
+                return array('response' => 'fail');
             }
 
             if(strtolower($full_response) == 'true' )
             {
-                $insert_array["response"] = (string) $return_code;
+                $insert_array['response'] = (string) $return_code;
                 return $insert_array;            
             }
             else
             {
-                return array("response" => (string) $return_code);
+                return array('response' => (string) $return_code);
             }
         }
 
@@ -88,8 +88,11 @@
          * @param $id string unique foursquare id for the venue the user wishes to check into
          * @param $username string unique wfs username
          *
-         * checks a warfaresquare user to a venue
+         * Method to CHECKIN warfaresquare user to a venue
          * according to the foursquare id of that venue
+         *
+         * Method to CREATE A VENUE on the server if this is the first ever checkin
+         * Method to MODIFY A VENUE if the venue already exists on the server
          *
          * @return array
          */
@@ -108,12 +111,13 @@
             $mongo = new MongoClient();
             $wfs = $mongo->selectDB('wfs');
             $venues_db = $wfs->selectCollection('venues');
+            //unique id allows for easy findOne / is_null check
             $venues_db->ensureIndex(array('id' => 1), array('unique' => 1));
 
             //return fail on bad return code from foursquare
             if ( (int) $the_venue->meta->code != 200)
             {
-                return array('response' => 'fail');
+                return array('response' => 'fail', 'reason' => $the_venue->meta->code);
             }
 
             //construct associative array from foursquare response for db insertion
@@ -125,12 +129,21 @@
             $insert_array['checkins'] = $the_venue->response->venue->stats->checkinsCount;
             $insert_array['users'] = $the_venue->response->venue->stats->usersCount;
             $insert_array['tips'] = $the_venue->response->venue->stats->tipCount;
-            //construct wfs attributes
-            $insert_array['soldiers'] = 0;
+
+
+            ///////////////////////////////////////////////////////////////////////////////////
+            // WFS VENUE ATTRIBUTES   - WORK IN PROGRESS . . .
+            ///////////////////////////////////////////////////////////////////////////////////
+
+            $insert_array['soldiers'] = array('owner' => '', 'number' => 0);
             $insert_array['added_on'] = date('U');
             $insert_array['mayor'] = '';
+            #$insert_array[''] = 0;
             //only used for new venue
             $insert_array['players'] = array($username);
+
+            ////////////////////////////////////////////////////////////////////////////////////
+
 
             if ($testing)
             {
@@ -155,7 +168,8 @@
                     $venues_db->insert($insert_array);
 
                     return array('response' => 'ok',
-                                 'stats' => array('soldiers' => $exists_query['soldiers'],
+                                 'stats' => array('opponent' => $exists_query['soldiers']['owner'],
+                                                  'troops' => $exists_query['soldiers']['number'],
                                                   'mayor' => $exists_query['mayor'],
                                                   'other_stuff' => 'to be determined'));
                 }
@@ -300,6 +314,7 @@
             //TODO: determine if radius is sufficient and/or increase upon low results
             $radius = 2000;
 
+            //db setup
             $mongo = new MongoClient();
             $wfs = $mongo->selectDB('wfs');
             $nearby_venues = $wfs->selectCollection('nearby');
@@ -326,7 +341,6 @@
                 $params = array('ll' => "$lat, $lng", 'radius' => $radius);
             }
 
-
             //nearby venues not stored so delete entire collection before each use
             try
             {
@@ -336,8 +350,6 @@
             {
                 #nop
             }
-
-
 
             //Perform a request to a public resource
             $response = $foursquare->GetPublic("venues/search",$params);
@@ -394,13 +406,32 @@
             }
             catch(MongoCursorException $e)
             {
-                return array('response' => 'fail', 'reason' => 'nearby_venues');
+                return array('response' => 'fail', 'reason' => 'aggregation');
             }
         }
 
         //Gaming Methods-------------------------------------------------------------------
 
+        /**
+         * method to allow the venue's controlling user to pickup the soldier.
+         *
+         * @param $id
+         * @param $username
+         *
+         * @return array
+         */
+        public function pickup_soldier($id, $username)
+        {
+            //db setup
+            $mongo = new MongoClient();
+            $wfs = $mongo->selectDB('wfs');
+            $venues_db = $wfs->selectCollection('venues');
+            $users_db = $wfs->selectCollection('users');
 
+
+
+            return array('response' => 'ok');
+        }
         public function roll_dice()
         {
         }
