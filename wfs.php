@@ -36,7 +36,7 @@
          *
          * IMPORTANT:  please md5 encode the password
          */
-        public function register_user($username, $password, $first, $last, $full_response='false')
+        public function register_user($username, $password, $first, $last, $full_response)
         {
             //database setup
             $mongo = new MongoClient();
@@ -286,13 +286,19 @@
          * @param $lat
          * @param $lng
          * @param $username
-         * @param int $how_many
+         * @param $how_many
+         * @param $restrict_categories string (true or false)
+         *
          * @return array
+         *
+         * @TODO radius currently 2000M - allow app to modify
          */
         public function nearby_venues($lat, $lng, $username, $how_many, $restrict_categories)
         {
             require_once('../../../secret.php');
             $foursquare = new FoursquareAPI(CLIENT_ID, CLIENT_SECRET);
+            //TODO: determine if radius is sufficient and/or increase upon low results
+            $radius = 2000;
 
             $mongo = new MongoClient();
             $wfs = $mongo->selectDB('wfs');
@@ -311,14 +317,13 @@
 
                 //prepare default params with categories selected
                 $params = array('ll' => "$lat, $lng",
-                                'radius' => 2000,
+                                'radius' => $radius,
                                 'categories' => $categories);
             }
             else
             {
                 //prepare default params without categories selected
-                //TODO: determine if radius is sufficient and/or increase upon low results
-                $params = array('ll' => "$lat, $lng", 'radius' => 2000);
+                $params = array('ll' => "$lat, $lng", 'radius' => $radius);
             }
 
 
