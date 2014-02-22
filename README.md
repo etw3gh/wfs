@@ -50,9 +50,10 @@ nearby_venues (return from top of sorted list according to 'how_many'):
         lat
         lng
         username
-        how_many
+        how_many            (max 50)
+        restrict_categories (true or false)
 
-    http://wfs.openciti.ca/?method=nearby_venues&lat=43.656714493508&lng=-79.380351305008&how_many=5&username=stevejobs
+    http://wfs.openciti.ca?method=nearby_venues&lat=43.656714493508&lng=-79.380351305008&how_many=5&username=stevejobs&restrict_categories=false
 
     {
         "response": "ok",

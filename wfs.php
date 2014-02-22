@@ -181,8 +181,15 @@
 
         /**
          * @param $username
+         *
+         * method to check a user out of a venue
+         * simply pulls their username from venues 'players' array
+         *
          * assume a player may be at only one location at any given time
          * thus to checkout we just need the username
+         *
+         *
+         * @TODO determine what game stats need preserving on the server
          *
          * @return array
          */
@@ -197,9 +204,8 @@
             try
             {
                 $venues_db->update(array('id' => $id),
-                                   array('$push' => array('players' => $username)));
+                                   array('$pull' => array('players' => $username)));
             }
-
             catch (MongoCursorException $e)
             {
                 return array('response' => 'fail', 'reason' => $e->getMessage());
@@ -284,7 +290,7 @@
          * @param int $how_many
          * @return array
          */
-        public function nearby_venues($lat, $lng, $username, $how_many)
+        public function nearby_venues($lat, $lng, $username, $how_many, $restrict_categories)
         {
             require_once('../../../secret.php');
             $foursquare = new FoursquareAPI(CLIENT_ID, CLIENT_SECRET);
@@ -292,6 +298,30 @@
             $mongo = new MongoClient();
             $wfs = $mongo->selectDB('wfs');
             $nearby_venues = $wfs->selectCollection('nearby');
+
+
+            if (strtolower($restrict_categories) == 'true')
+            {
+                //prepare foursquare categories
+                $food_4s_id = '4d4b7105d754a06374d81259';
+                $arts_4s_id = '4d4b7104d754a06370d81259';
+                $bar_4s_id  = '4d4b7105d754a06376d81259';
+                $shopping_4s_id = '4d4b7105d754a06378d81259';
+                $travel_4s_id = '4d4b7105d754a06379d81259';
+                $categories = $food_4s_id . ',' . $arts_4s_id . ',' . $bar_4s_id . ',' . $shopping_4s_id . ',' . $travel_4s_id;
+
+                //prepare default params with categories selected
+                $params = array('ll' => "$lat, $lng",
+                                'radius' => 2000,
+                                'categories' => $categories);
+            }
+            else
+            {
+                //prepare default params without categories selected
+                //TODO: determine if radius is sufficient and/or increase upon low results
+                $params = array('ll' => "$lat, $lng", 'radius' => 2000);
+            }
+
 
             //nearby venues not stored so delete entire collection before each use
             try
@@ -303,9 +333,7 @@
                 #nop
             }
 
-            //prepare default params
-            //TODO: determine if radius is sufficient and/or increase upon low results
-            $params = array('ll' => "$lat, $lng", 'radius' => 2000);
+
 
             //Perform a request to a public resource
             $response = $foursquare->GetPublic("venues/search",$params);
