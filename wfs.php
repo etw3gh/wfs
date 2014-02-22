@@ -11,8 +11,6 @@
      *
      * @TODO add wfs api key to all urls and methods to prevent gaming the system
      *
-     * @TODO refactoring of Foursquare responses
-     *
      * @TODO harmonize all responses to: response : ok/fail , reason : 'blah ...'
      *
      */
