@@ -22,11 +22,11 @@
      *
      * full form array() is used instead of [] for better readability in phpStorm
      */
+
+
+
     class WarFareSquare
     {
-        //example of a function
-        public function hello($name){return(array("response" => "Hello $name"));}
-
         /**
          * @param $username
          * @param $password
@@ -40,11 +40,8 @@
          */
         public function register_user($username, $password, $first, $last, $full_response)
         {
-            //database setup
-            $mongo = new MongoClient();
-            $wfs = $mongo->selectDB('wfs');
-            $users = $wfs->selectCollection('users');
-            $users->ensureIndex(array("username" => 1), array("unique" => 1));
+            #$users = null;
+            include('mongo_setup_users.php');
 
             $insert_array = null;
 
@@ -62,7 +59,7 @@
                                       'last_daily_soldier' => date('U'),
                                       'venues' => $my_venues);
 
-                $users->insert($insert_array);
+                self::$users->insert($insert_array);
                 $return_code = 'ok';
             }
             catch(MongoCursorException $e) 
@@ -100,21 +97,12 @@
          */
         public function wfs_checkin($id, $username)
         {
-            $testing = true;
-
-            //Foursquare setup
-            require_once('../../../secret.php');
-            $foursquare = new FoursquareAPI(CLIENT_ID, CLIENT_SECRET);
+            $testing = true;  $foursquare = null;
+            include('foursquare_setup.php');
             //OBTAIN A VENUE BY VENUE ID
             $response = $foursquare->GetPublic("venues/$id");
             $the_venue = json_decode($response);
-
-            //database setup
-            $mongo = new MongoClient();
-            $wfs = $mongo->selectDB('wfs');
-            $venues_db = $wfs->selectCollection('venues');
-            //unique id allows for easy findOne / is_null check
-            $venues_db->ensureIndex(array('id' => 1), array('unique' => 1));
+            include('mongo_setup_venues.php');
 
             //return fail on bad return code from foursquare
             if ( (int) $the_venue->meta->code != 200)
