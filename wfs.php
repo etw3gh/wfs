@@ -1,5 +1,4 @@
 <?php
-    require_once("FoursquareAPI.class.php");
     require_once('RestServer.php');
 
     /**
@@ -40,8 +39,7 @@
          */
         public function register_user($username, $password, $first, $last, $full_response)
         {
-            #$users = null;
-            include('mongo_setup_users.php');
+            $users = null; include('mongo_setup_users.php');
 
             $insert_array = null;
 
@@ -59,7 +57,7 @@
                                       'last_daily_soldier' => date('U'),
                                       'venues' => $my_venues);
 
-                self::$users->insert($insert_array);
+                $users->insert($insert_array);
                 $return_code = 'ok';
             }
             catch(MongoCursorException $e) 
@@ -97,12 +95,13 @@
          */
         public function wfs_checkin($id, $username)
         {
-            $testing = true;  $foursquare = null;
-            include('foursquare_setup.php');
+            $testing = true;  $foursquare = null; $venues_db = null;
+            include('mongo_setup_venues.php');   include('foursquare_setup.php');
+
             //OBTAIN A VENUE BY VENUE ID
             $response = $foursquare->GetPublic("venues/$id");
             $the_venue = json_decode($response);
-            include('mongo_setup_venues.php');
+
 
             //return fail on bad return code from foursquare
             if ( (int) $the_venue->meta->code != 200)
@@ -201,11 +200,7 @@
          */
         public function wfs_checkout($id, $username)
         {
-            //database setup
-            $mongo = new MongoClient();
-            $wfs = $mongo->selectDB('wfs');
-            $venues_db = $wfs->selectCollection('venues');
-            $venues_db->ensureIndex(array('id' => 1), array('unique' => 1));
+            $venues_db = null; include('mongo_setup_venues.php');
 
             try
             {
@@ -236,11 +231,7 @@
          */
         public function login_user($username, $password)
         {
-            //database setup
-            $mongo = new MongoClient();
-            $wfs = $mongo->selectDB('wfs');
-            $users = $wfs->selectCollection('users');
-            $users->ensureIndex(array("username" => 1), array("unique" => 1));
+            $users = null; include('mongo_setup_users.php');
 
             //calculate the seconds in a day for soldier calculations
             $seconds_per_day = 24 * 60 * 60;
@@ -305,15 +296,12 @@
          */
         public function nearby_venues($lat, $lng, $username, $how_many, $restrict_categories)
         {
-            require_once('../../../secret.php');
-            $foursquare = new FoursquareAPI(CLIENT_ID, CLIENT_SECRET);
+            $foursquare = null; $venues_db = null; $nearby_venues = null; $wfs = null;
+            include('mongo_setup_venues.php');include('foursquare_setup.php');
+            $nearby_venues = $wfs->selectCollection('nearby');
+
             //TODO: determine if radius is sufficient and/or increase upon low results
             $radius = 2000;
-
-            //db setup
-            $mongo = new MongoClient();
-            $wfs = $mongo->selectDB('wfs');
-            $nearby_venues = $wfs->selectCollection('nearby');
 
             //add or omit category restrictions
             if (strtolower($restrict_categories) == 'true')
@@ -425,11 +413,8 @@
          */
         public function pickup_soldiers($id, $username)
         {
-            //db setup
-            $mongo = new MongoClient();
-            $wfs = $mongo->selectDB('wfs');
-            $venues_db = $wfs->selectCollection('venues');
-            $users_db = $wfs->selectCollection('users');
+            $venues_db = null; $users_db = null;
+            include('mongo_setup_venues_and_users.php');
 
             //determine if our user is the mayor of location supplied by $id
             $is_mayor_query = $venues_db->findOne(array('mayor' => $username, 'id' => $id));
@@ -475,11 +460,8 @@
          */
         public function place_soldiers($id, $username, $number)
         {
-            //db setup
-            $mongo = new MongoClient();
-            $wfs = $mongo->selectDB('wfs');
-            $venues_db = $wfs->selectCollection('venues');
-            $users_db = $wfs->selectCollection('users');
+            $venues_db = null; $users_db = null;
+            include('mongo_setup_venues_and_users.php');
 
             //determine if our user is the mayor of location supplied by $id
             $is_mayor_query = $venues_db->findOne(array('mayor' => $username, 'id' => $id));
