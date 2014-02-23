@@ -137,7 +137,8 @@
             // WFS VENUE ATTRIBUTES   - WORK IN PROGRESS . . .
             ///////////////////////////////////////////////////////////////////////////////////
 
-            $insert_array['soldiers'] = array('owner' => '', 'number' => 0);
+            //the mayor is always the owner of the soldiers
+            $insert_array['soldiers'] = 0;
             $insert_array['daily_soldiers'] = 0;
             $insert_array['daily_soldiers_added_on'] = date('U'); #check field in cron_venues.php
             $insert_array['daily_soldiers_removed_on'] = '';
@@ -301,6 +302,9 @@
          * presents nicely sorted (by foursquare checkins) json array to the calling application
          * and only includes a few important details of the original response 
          *
+         * creates a temporary aggregation table with temp_id = date('U')
+         * table is erased immediately after aggregation is performed
+         *
          * @param $lat
          * @param $lng
          * @param $username
@@ -345,22 +349,15 @@
                 $params = array('ll' => "$lat, $lng", 'radius' => $radius);
             }
 
-            //nearby venues not stored so delete entire collection before each use
-            try
-            {
-                $nearby_venues->remove(array());
-            }
-            catch (MongoException $e)
-            {
-                #nop
-            }
-
             //Perform a request to a public resource
             $response = $foursquare->GetPublic("venues/search",$params);
             $venues = json_decode($response);
 
+            //unique timestamp to label temporary document or 'table' so it can be erased
+            $temp_id = date('U');
             //prep mongo db document
-            $nearby_venues->insert(array('user' => $username, 'venues' => array() ));
+            $nearby_venues->insert(array('temp_id' => $temp_id, 'venues' => array() ));
+
 
             //push relevant venue details to doc
             foreach ($venues->response->venues as $v)
@@ -373,8 +370,8 @@
 
                 try
                 {
-                    $nearby_venues->update(array('user' => $username),
-                        array('$push' => array('venues' => $insert_array )));
+                    $nearby_venues->update(array('temp_id' => $temp_id),
+                                           array('$push' => array('venues' => $insert_array )));
                 }
                 catch (MongoCursorException $e)
                 {
@@ -391,12 +388,14 @@
                 /*
                     AGGREGATION PIPELINE
                     $unwind: used to access nested array 'venues'
+                    $match: restrict to the current temp_id just in case more exist
                     $sort: -1 used for descending order sort of venues[checkins]
                     $limit: returns only however many the function is asked for ($how_many)
                     $project: create projection of 'columns' to exclude (0) mongodb _id 
                               and include (1) the venues array    
                 */
-                $agg_array = array( array('$unwind' => '$venues'),                      
+                $agg_array = array( array('$unwind' => '$venues'),
+                                    array('$match' => array('temp_id' => $temp_id)),
                                     array('$sort' => array('venues.checkins' =>-1 )),
                                     array('$limit' => (int) $how_many),
                                     array('$project' =>
@@ -404,6 +403,15 @@
                                                 'venues' => 1)));
                 //perform the aggregation
                 $aggregate = $nearby_venues->aggregate( $agg_array );
+
+                //attempt to delete the temporary document (no big deal if it fails)
+                try
+                {
+                    $nearby_venues->remove(array('temp_id' => $temp_id));
+                }
+                catch (MongoCursorException $e){
+                    //nop
+                }
 
                 //return the aggregation as the value for key 'top_venues'
                 return array('response' => 'ok', 'top_venues' => $aggregate);
@@ -488,26 +496,59 @@
             //determine if our user is the mayor of location supplied by $id
             $is_mayor_query = $venues_db->findOne(array('mayor' => $username, 'id' => $id));
 
+            if(is_null($is_mayor_query))
+            {
+                return array('response' => 'fail', 'reason' => 'user not mayor');
+            }
+
+            //prepare return array
+            $success_array = array('response' => 'ok');
+
             //according to gdd maximum 10 dice / soldiers per venue
             $max_placement = 10;
 
-            $success_array = array('response' => 'ok');
+            $user_query = $users_db->findOne(array('username' => $username));
 
-            ////////////////////////////
-            ///////////////work stopped here
-
-            if(!is_null($is_mayor_query))
+            if (is_null($user_query))
             {
-
+                return array('response' => 'fail', 'reason' => 'invalid user');
             }
-            else
+
+            //now we know the user is the mayor and that the user exists
+
+            //retrieve the number of soldiers already defending the location
+            //by definition, they will belong to this user and count towards the max
+            $soldiers_already_defending = $is_mayor_query['soldiers'];
+            $user_able_to_place = $max_placement - $soldiers_already_defending;
+
+            //retrieve the actual number of soldiers the user has available to them
+            $actual_number_of_soldiers = $user_query['soldiers'];
+
+            if($number > $actual_number_of_soldiers)
             {
+                $success_array['warning'] = "$number requested, $actual_number_of_soldiers placed";
+                $number = $actual_number_of_soldiers;
 
+                //account for case where user wishes to deploy more than the max number allowed
+                if ($number > $user_able_to_place)
+                {
+                    $success_array['warning'] = "$number requested, $user_able_to_place placed";
+                    $number = $user_able_to_place;
+                }
             }
-            //TODO return stats . . .
 
-            if ($number > $max_placement) $success_array['warning'] = "$number requested, $max_placement placed";
+            //now place $number of soldiers at the location and remove -$number from the user
+            //mongo has no '$dec' operator...
+            $reduce_by = $number * (-1);
+            $users_db->update(array('username' => $username),
+                              array('$inc' => array('soldiers' => $reduce_by)));
 
+            $venues_db->update(array('mayor' =>$username),
+                               array('$inc' => array('soldiers' => $number)));
+
+
+            $success_array['stats'] = array('usersoldiers' => $actual_number_of_soldiers - $number,
+                                            'venuesolders' => $soldiers_already_defending + $number);
             return $success_array;
         }
 
