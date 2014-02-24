@@ -4,6 +4,16 @@ RESTful API for wfs
 
 all methods are called from /wfs.php for now
 Current backend url: wfs.openciti.ca/wfs.php
+
+TODO: split up into more meaningfull endpoint scripts:
+
+    admin.php
+    nearby.php
+    checkinout.php
+    soldiers.php
+    attack.php
+    stats.php
+
 ---
 
 Can be hosted on Google Compute Engine or AWS
