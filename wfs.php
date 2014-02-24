@@ -9,8 +9,8 @@
      *
      * Serves json strings back to whomever calls the api methods   
      * 
-     * sample api call:
-     * http://wfs.openciti.ca?method=MethodName&param1=Param1Value&param2=Param2Value
+     * sample api call: (new: wfs.php or other endpoint script must be in url)
+     * http://wfs.openciti.ca/wfs.php?method=MethodName&param1=Param1Value&param2=Param2Value
      *
      * IMPORTANT: convert all data to string before db ops
      *
@@ -26,6 +26,7 @@
 
     class WarFareSquare
     {
+
         /**
          * @param $username
          * @param $password
@@ -60,7 +61,7 @@
                 $users->insert($insert_array);
                 $return_code = 'ok';
             }
-            catch(MongoCursorException $e) 
+            catch(MongoCursorException $e)
             {
                 return array('response' => 'fail', 'reason' => 'duplicate user');
             }
@@ -72,14 +73,13 @@
             if(strtolower($full_response) == 'true' )
             {
                 $insert_array['response'] = (string) $return_code;
-                return $insert_array;            
+                return $insert_array;
             }
             else
             {
                 return array('response' => (string) $return_code);
             }
         }
-
 
         /**
          * @param $id string unique foursquare id for the venue the user wishes to check into
