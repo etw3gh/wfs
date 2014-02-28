@@ -2,29 +2,15 @@
     require_once('RestServer.php');
 
     /**
-     * Class WarFareSquare
-     * 
-     * A class that holds api methods which serves to decouple the application logic
-     * from the application implementation(s) and platform(s). 
+     * DEPRECIATED USE THESE ENDPOINTS INSTEAD:
      *
-     * Serves json strings back to whomever calls the api methods   
-     * 
-     * sample api call: (new: wfs.php or other endpoint script must be in url)
-     * http://wfs.openciti.ca/wfs.php?method=MethodName&param1=Param1Value&param2=Param2Value
+     * admin.php
+     * nearby.php
+     * checkin.php
+     * soldiers.php
      *
-     * IMPORTANT: convert all data to string before db ops
-     *
-     * @TODO add wfs api key to all urls and methods to prevent gaming the system
-     *
-     * @TODO harmonize all responses to: response : ok/fail , reason : 'blah ...'
-     *
-     *
-     * full form array() is used instead of [] for better readability in phpStorm
      */
-
-
-
-    class WarFareSquare
+class WarFareSquare
     {
 
         /**
