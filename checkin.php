@@ -1,4 +1,6 @@
 <?php
+
+# https://github.com/jakesankey/PHP-RestServer-Class/blob/master/RestServer.php
 require_once('RestServer.php');
 
 /**
@@ -26,8 +28,8 @@ class WFS_Checkin
      */
     public function checkin($id, $username)
     {
-        $testing = true;  $foursquare = null; $venues_db = null;
-        include('mongo_setup_venues.php');   include('foursquare_setup.php');
+        $testing = true;  $foursquare = $venues_db = null;
+        include('mongo_setup_venues.php'); include('foursquare_setup.php');
 
         //OBTAIN A VENUE BY VENUE ID
         $response = $foursquare->GetPublic("venues/$id");
@@ -50,11 +52,6 @@ class WFS_Checkin
         $insert_array['users'] = $the_venue->response->venue->stats->usersCount;
         $insert_array['tips'] = $the_venue->response->venue->stats->tipCount;
 
-
-        ///////////////////////////////////////////////////////////////////////////////////
-        // WFS VENUE ATTRIBUTES   - WORK IN PROGRESS . . .
-        ///////////////////////////////////////////////////////////////////////////////////
-
         //the mayor is always the owner of the soldiers
         $insert_array['soldiers'] = 0;
         $insert_array['daily_soldiers'] = 0;
@@ -64,21 +61,6 @@ class WFS_Checkin
         #$insert_array[''] = 0;
         //only used for new venue
         $insert_array['players'] = array($username);
-
-        ////////////////////////////////////////////////////////////////////////////////////
-
-
-        if ($testing)
-        {
-            print "CODE:         " . $insert_array['code'] . "<br />";
-            print "FourSqure ID: " .  $insert_array['id']  . "<br />";
-            print "Name:         " . $insert_array['name'] . "<br />";
-            print "Lat:          " . $insert_array['lat'] . "<br />";
-            print "Lng:          " . $insert_array['lng'] . "<br />";
-            print "Checkins Count: " . $insert_array['checkins'] . "<br />";
-            print "Users Count: " . $insert_array['users'] . "<br />";
-            print "Tip Count: " . $insert_array['tips'] . "<br />";
-        }
 
         try
         {
@@ -150,6 +132,7 @@ class WFS_Checkin
     }
 }
 
+###################### MAIN
 $rest = new RestServer();
 $rest->addServiceClass('WFS_Checkin');
 $rest->handle();

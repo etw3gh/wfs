@@ -1,4 +1,6 @@
 <?php
+
+# https://github.com/jakesankey/PHP-RestServer-Class/blob/master/RestServer.php
 require_once('RestServer.php');
 
 /**
@@ -34,7 +36,7 @@ class WFS_Nearby
      */
     public function nearby($lat, $lng, $username, $how_many, $restrict_categories)
     {
-        $foursquare = null; $venues_db = null; $nearby_venues = null; $wfs = null;
+        $foursquare = $venues_db = $nearby_venues = $wfs = null;
         include('mongo_setup_venues.php');include('foursquare_setup.php');
         $nearby_venues = $wfs->selectCollection('nearby');
 
@@ -137,6 +139,8 @@ class WFS_Nearby
     }
 
 }
+
+######################MAIN
 
 $rest = new RestServer();
 $rest->addServiceClass('WFS_Nearby');

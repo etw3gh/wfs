@@ -1,4 +1,6 @@
 <?php
+
+# https://github.com/jakesankey/PHP-RestServer-Class/blob/master/RestServer.php
 require_once('RestServer.php');
 
 /**
@@ -134,6 +136,8 @@ class WFS_Soldiers
         return $success_array;
     }
 }
+
+###################### MAIN
 
 $rest = new RestServer();
 $rest->addServiceClass('WFS_Soldiers');

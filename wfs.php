@@ -1,4 +1,5 @@
 <?php
+    # https://github.com/jakesankey/PHP-RestServer-Class/blob/master/RestServer.php
     require_once('RestServer.php');
 
     /**
@@ -27,8 +28,6 @@ class WarFareSquare
         public function register_user($username, $password, $first, $last, $full_response)
         {
             $users = null; include('mongo_setup_users.php');
-
-            $insert_array = null;
 
             try
             {
@@ -81,7 +80,7 @@ class WarFareSquare
          */
         public function wfs_checkin($id, $username)
         {
-            $testing = true;  $foursquare = null; $venues_db = null;
+            $testing = true;  $foursquare = $venues_db = null;
             include('mongo_setup_venues.php');   include('foursquare_setup.php');
 
             //OBTAIN A VENUE BY VENUE ID
@@ -105,11 +104,6 @@ class WarFareSquare
             $insert_array['users'] = $the_venue->response->venue->stats->usersCount;
             $insert_array['tips'] = $the_venue->response->venue->stats->tipCount;
 
-
-            ///////////////////////////////////////////////////////////////////////////////////
-            // WFS VENUE ATTRIBUTES   - WORK IN PROGRESS . . .
-            ///////////////////////////////////////////////////////////////////////////////////
-
             //the mayor is always the owner of the soldiers
             $insert_array['soldiers'] = 0;
             $insert_array['daily_soldiers'] = 0;
@@ -119,21 +113,6 @@ class WarFareSquare
             #$insert_array[''] = 0;
             //only used for new venue
             $insert_array['players'] = array($username);
-
-            ////////////////////////////////////////////////////////////////////////////////////
-
-
-            if ($testing)
-            {
-                print "CODE:         " . $insert_array['code'] . "<br />";
-                print "FourSqure ID: " .  $insert_array['id']  . "<br />";
-                print "Name:         " . $insert_array['name'] . "<br />";
-                print "Lat:          " . $insert_array['lat'] . "<br />";
-                print "Lng:          " . $insert_array['lng'] . "<br />";
-                print "Checkins Count: " . $insert_array['checkins'] . "<br />";
-                print "Users Count: " . $insert_array['users'] . "<br />";
-                print "Tip Count: " . $insert_array['tips'] . "<br />";
-            }
 
             try
             {
@@ -282,7 +261,7 @@ class WarFareSquare
          */
         public function nearby_venues($lat, $lng, $username, $how_many, $restrict_categories)
         {
-            $foursquare = null; $venues_db = null; $nearby_venues = null; $wfs = null;
+            $foursquare = $venues_db = $nearby_venues = $wfs = null;
             include('mongo_setup_venues.php');include('foursquare_setup.php');
             $nearby_venues = $wfs->selectCollection('nearby');
 

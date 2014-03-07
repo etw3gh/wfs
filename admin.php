@@ -1,5 +1,8 @@
 <?php
+
+# https://github.com/jakesankey/PHP-RestServer-Class/blob/master/RestServer.php
 require_once('RestServer.php');
+
 
 /**
  * Class WarFareSquare
@@ -26,8 +29,6 @@ class WFS_Admin
     public function register($username, $password, $first, $last, $full_response)
     {
         $users = null; include('mongo_setup_users.php');
-
-        $insert_array = null;
 
         try
         {
@@ -121,6 +122,7 @@ class WFS_Admin
     }
 }
 
+###################### MAIN
 
 $rest = new RestServer();
 $rest->addServiceClass('WFS_Admin');
