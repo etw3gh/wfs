@@ -5,11 +5,6 @@ require_once('RestServer.php');
 
 /**
  * Class WarFareSquare
- *
- * A class that holds api methods which serves to decouple the application logic
- * from the application implementation(s) and platform(s).
- *
- * Serves json strings back to whomever calls the api methods
  */
 
 class WFS_Nearby
@@ -29,53 +24,55 @@ class WFS_Nearby
      * @param $username
      * @param $how_many
      * @param $restrict_categories string (true or false)
+     * @param $radius int in metres
      *
      * @return array
      *
-     * @TODO radius currently 2000M - allow app to modify
+     * @todo add address
+     * @todo stash nearby query to save second call to foursquare api in checkin.php
      */
-    public function nearby($lat, $lng, $username, $how_many, $restrict_categories)
+    public function nearby($lat, $lng, $username, $how_many, $restrict_categories, $radius)
     {
+        # setup & initialize foursquare api and mongodb connections
         $foursquare = $venues_db = $nearby_venues = $wfs = null;
-        include('mongo_setup_venues.php');include('foursquare_setup.php');
+        include('mongo_setup_venues.php');
+        include('foursquare_setup.php');
         $nearby_venues = $wfs->selectCollection('nearby');
 
-        //TODO: determine if radius is sufficient and/or increase upon low results
-        $radius = 2000;
-
-        //add or omit category restrictions
+        # add or omit category restrictions to shopping type locations
         if (strtolower($restrict_categories) == 'true')
         {
-            //prepare foursquare categories
-            $food_4s_id = '4d4b7105d754a06374d81259';
-            $arts_4s_id = '4d4b7104d754a06370d81259';
-            $bar_4s_id  = '4d4b7105d754a06376d81259';
-            $shopping_4s_id = '4d4b7105d754a06378d81259';
-            $travel_4s_id = '4d4b7105d754a06379d81259';
-            $categories = $food_4s_id . ',' . $arts_4s_id . ',' . $bar_4s_id . ',' . $shopping_4s_id . ',' . $travel_4s_id;
+            # prepare foursquare categories
+            $category_array = array(
+            /*$food_4s_id =*/       '4d4b7105d754a06374d81259',
+            /*$arts_4s_id =*/       '4d4b7104d754a06370d81259',
+            /*$bar_4s_id  =*/       '4d4b7105d754a06376d81259',
+            /*$shopping_4s_id =*/   '4d4b7105d754a06378d81259',
+            /*$travel_4s_id = */    '4d4b7105d754a06379d81259');
+            $categories = implode(',', $category_array);
 
-            //prepare default params with categories selected
+            #prepare default params with categories selected
             $params = array('ll' => "$lat, $lng",
-                'radius' => $radius,
-                'categories' => $categories);
+                            'radius' => $radius,
+                            'categories' => $categories);
         }
         else
         {
-            //prepare default params without categories selected
+            # prepare default params without categories selected
             $params = array('ll' => "$lat, $lng", 'radius' => $radius);
         }
 
-        //Perform a request to a public resource
+        # Perform a request to a public resource
         $response = $foursquare->GetPublic("venues/search",$params);
         $venues = json_decode($response);
 
-        //unique timestamp to label temporary document or 'table' so it can be erased
+        # unique timestamp to label temporary document or 'table' so it can be erased
         $temp_id = date('U');
-        //prep mongo db document
+        # prep mongo db document
         $nearby_venues->insert(array('temp_id' => $temp_id, 'venues' => array() ));
 
 
-        //push relevant venue details to doc
+        # push relevant venue details to doc
         foreach ($venues->response->venues as $v)
         {
             $insert_array =array();
@@ -117,19 +114,19 @@ class WFS_Nearby
                 array('$project' =>
                     array('_id' => 0,
                         'venues' => 1)));
-            //perform the aggregation
+            # perform the aggregation
             $aggregate = $nearby_venues->aggregate( $agg_array );
 
-            //attempt to delete the temporary document (no big deal if it fails)
+            # attempt to delete the temporary document (no big deal if it fails)
             try
             {
                 $nearby_venues->remove(array('temp_id' => $temp_id));
             }
             catch (MongoCursorException $e){
-                //nop
+                # nop
             }
 
-            //return the aggregation as the value for key 'top_venues'
+            # return the aggregation as the value for key 'top_venues'
             return array('response' => 'ok', 'top_venues' => $aggregate);
         }
         catch(MongoCursorException $e)

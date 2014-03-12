@@ -30,7 +30,7 @@ ENDPOINTS --> METHODS ----> PARAMETERS
                 username            unique wfs username
                 how_many            limit query to this many results
                 restrict_categories true or false (if true non-business venues are not queried)
-
+                radius              in metres
 
     checkin.php
         checkin

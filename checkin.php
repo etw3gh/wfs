@@ -5,11 +5,6 @@ require_once('RestServer.php');
 
 /**
  * Class WarFareSquare
- *
- * A class that holds api methods which serves to decouple the application logic
- * from the application implementation(s) and platform(s).
- *
- * Serves json strings back to whomever calls the api methods
  */
 
 class WFS_Checkin
@@ -25,24 +20,28 @@ class WFS_Checkin
      * Method to MODIFY A VENUE if the venue already exists on the server
      *
      * @return array
+     *
+     * @todo oauth stuff
      */
     public function checkin($id, $username)
     {
-        $testing = true;  $foursquare = $venues_db = null;
-        include('mongo_setup_venues.php'); include('foursquare_setup.php');
+        # setup & initialize foursquare api and mongodb connections
+        $foursquare = $venues_db = null;
+        include('mongo_setup_venues.php');
+        include('foursquare_setup.php');
 
-        //OBTAIN A VENUE BY VENUE ID
+        # OBTAIN A VENUE BY VENUE ID
         $response = $foursquare->GetPublic("venues/$id");
         $the_venue = json_decode($response);
 
 
-        //return fail on bad return code from foursquare
+        # return fail on bad return code from foursquare
         if ( (int) $the_venue->meta->code != 200)
         {
             return array('response' => 'fail', 'reason' => $the_venue->meta->code);
         }
 
-        //construct associative array from foursquare response for db insertion
+        # construct associative array from foursquare response for db insertion
         $insert_array = array();
         $insert_array['id'] = $the_venue->response->venue->id;
         $insert_array['name'] = $the_venue->response->venue->name;
@@ -52,24 +51,24 @@ class WFS_Checkin
         $insert_array['users'] = $the_venue->response->venue->stats->usersCount;
         $insert_array['tips'] = $the_venue->response->venue->stats->tipCount;
 
-        //the mayor is always the owner of the soldiers
+        # the mayor is always the owner of the soldiers
         $insert_array['soldiers'] = 0;
         $insert_array['daily_soldiers'] = 0;
         $insert_array['daily_soldiers_added_on'] = date('U'); #check field in cron_venues.php
         $insert_array['daily_soldiers_removed_on'] = '';
         $insert_array['mayor'] = '';
         #$insert_array[''] = 0;
-        //only used for new venue
+        # only used for new venue
         $insert_array['players'] = array($username);
 
         try
         {
-            //check to see if venue exists (ie: min 1 wfs checkin)
+            # check to see if venue exists (ie: min 1 wfs checkin)
             $exists_query = $venues_db->findOne(array('id' => $id));
 
             if (is_null($exists_query))
             {
-                //perform insert if no venue exists
+                # perform insert if no venue exists
                 $venues_db->insert($insert_array);
 
                 return array('response' => 'ok',
@@ -80,8 +79,8 @@ class WFS_Checkin
             }
             else
             {
-                //perform update if venue exists
-                //pushes player onto player list
+                # perform update if venue exists
+                # pushes player onto player list
                 $venues_db->update(array('id' => $id),
                     array('$push' => array('players' => $username)));
             }
@@ -100,7 +99,7 @@ class WFS_Checkin
 
     /**
      * @param $id           string representing unique foursquare id
-     * @param $username     string respresenting unique warfoursquare username
+     * @param $username     string representing unique warfoursquare username
      *
      * method to check a user out of a venue
      * simply pulls their username from venues 'players' array

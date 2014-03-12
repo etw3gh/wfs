@@ -30,7 +30,7 @@ class WFS_Soldiers
         $venues_db = null; $users_db = null;
         include('mongo_setup_venues_and_users.php');
 
-        //determine if our user is the mayor of location supplied by $id
+        # determine if our user is the mayor of location supplied by $id
         $is_mayor_query = $venues_db->findOne(array('mayor' => $username, 'id' => $id));
 
         if(!is_null($is_mayor_query))
@@ -38,12 +38,12 @@ class WFS_Soldiers
             $soldiers_available = $is_mayor_query['daily_soldiers'];
             if ($soldiers_available > 0)
             {
-                //first add to user
+                # first add to user
                 $users_db->update(array('username' => $username),
                     array('$inc' => array('soldiers' => $soldiers_available)));
 
-                //remove from venue (sets field to zero
-                //TODO determine if soldier related timestamps need altering
+                # remove from venue (sets field to zero
+                # TODO determine if soldier related timestamps need altering
                 $venues_db->update(array('id' => $id),
                     array('$set' => array('daily_soldiers' => 0,
                         'daily_soldiers_removed_on' => date('U'))));
@@ -58,7 +58,7 @@ class WFS_Soldiers
             return array('response' => 'fail', 'reason' => 'user not mayor');
         }
 
-        //TODO return stats . . .
+        # TODO return stats . . .
         return array('response' => 'ok');
     }
 
@@ -74,10 +74,11 @@ class WFS_Soldiers
      */
     public function place($id, $username, $number)
     {
-        $venues_db = null; $users_db = null;
+        # setup & initialize mongodb connections
+        $venues_db = $users_db = null;
         include('mongo_setup_venues_and_users.php');
 
-        //determine if our user is the mayor of location supplied by $id
+        # determine if our user is the mayor of location supplied by $id
         $is_mayor_query = $venues_db->findOne(array('mayor' => $username, 'id' => $id));
 
         if(is_null($is_mayor_query))
@@ -85,10 +86,10 @@ class WFS_Soldiers
             return array('response' => 'fail', 'reason' => 'user not mayor');
         }
 
-        //prepare return array
+        # prepare return array
         $success_array = array('response' => 'ok');
 
-        //according to gdd maximum 10 dice / soldiers per venue
+        # according to gdd maximum 10 dice / soldiers per venue
         $max_placement = 10;
 
         $user_query = $users_db->findOne(array('username' => $username));
@@ -98,14 +99,14 @@ class WFS_Soldiers
             return array('response' => 'fail', 'reason' => 'invalid user');
         }
 
-        //now we know the user is the mayor and that the user exists
+        # now we know the user is the mayor and that the user exists
 
-        //retrieve the number of soldiers already defending the location
-        //by definition, they will belong to this user and count towards the max
+        # retrieve the number of soldiers already defending the location
+        # by definition, they will belong to this user and count towards the max
         $soldiers_already_defending = $is_mayor_query['soldiers'];
         $user_able_to_place = $max_placement - $soldiers_already_defending;
 
-        //retrieve the actual number of soldiers the user has available to them
+        # retrieve the actual number of soldiers the user has available to them
         $actual_number_of_soldiers = $user_query['soldiers'];
 
         if($number > $actual_number_of_soldiers)
@@ -113,7 +114,7 @@ class WFS_Soldiers
             $success_array['warning'] = "$number requested, $actual_number_of_soldiers placed";
             $number = $actual_number_of_soldiers;
 
-            //account for case where user wishes to deploy more than the max number allowed
+            # account for case where user wishes to deploy more than the max number allowed
             if ($number > $user_able_to_place)
             {
                 $success_array['warning'] = "$number requested, $user_able_to_place placed";
@@ -121,18 +122,18 @@ class WFS_Soldiers
             }
         }
 
-        //now place $number of soldiers at the location and remove -$number from the user
-        //mongo has no '$dec' operator...
+        # now place $number of soldiers at the location and remove -$number from the user
+        # mongo has no '$dec' operator...
         $reduce_by = $number * (-1);
         $users_db->update(array('username' => $username),
-            array('$inc' => array('soldiers' => $reduce_by)));
+                          array('$inc' => array('soldiers' => $reduce_by)));
 
         $venues_db->update(array('mayor' =>$username),
-            array('$inc' => array('soldiers' => $number)));
+                           array('$inc' => array('soldiers' => $number)));
 
 
         $success_array['stats'] = array('usersoldiers' => $actual_number_of_soldiers - $number,
-            'venuesolders' => $soldiers_already_defending + $number);
+                                        'venuesolders' => $soldiers_already_defending + $number);
         return $success_array;
     }
 }
