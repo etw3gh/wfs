@@ -35,13 +35,13 @@ class WFS_Soldiers
             {
                 # first add to user
                 $users_db->update(array('username' => $username),
-                    array('$inc' => array('soldiers' => $soldiers_available)));
+                                  array('$inc' => array('soldiers' => $soldiers_available)));
 
                 # remove from venue (sets field to zero
                 # TODO determine if soldier related timestamps need altering
                 $venues_db->update(array('id' => $id),
-                    array('$set' => array('daily_soldiers' => 0,
-                        'daily_soldiers_removed_on' => date('U'))));
+                                   array('$set' => array('daily_soldiers' => 0,
+                                                         'daily_soldiers_removed_on' => date('U'))));
             }
             else
             {
@@ -103,6 +103,7 @@ class WFS_Soldiers
 
         # retrieve the actual number of soldiers the user has available to them
         $actual_number_of_soldiers = $user_query['soldiers'];
+        $save_original_number = $number;
 
         if($number > $actual_number_of_soldiers)
         {
@@ -112,7 +113,7 @@ class WFS_Soldiers
             # account for case where user wishes to deploy more than the max number allowed
             if ($number > $user_able_to_place)
             {
-                $success_array['warning'] = "$number requested, $user_able_to_place placed";
+                $success_array['warning'] = "$save_original_number requested, $user_able_to_place placed";
                 $number = $user_able_to_place;
             }
         }
