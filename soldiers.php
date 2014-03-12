@@ -5,11 +5,6 @@ require_once('RestServer.php');
 
 /**
  * Class WarFareSquare
- *
- * A class that holds api methods which serves to decouple the application logic
- * from the application implementation(s) and platform(s).
- *
- * Serves json strings back to whomever calls the api methods
  */
 
 class WFS_Soldiers
