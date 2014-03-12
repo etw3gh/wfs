@@ -8,7 +8,7 @@ Current backend url: wfs.openciti.ca/ENDPOINT.PHP?method=METHOD&.....
 
 Currently methods do not verify correctness of parameters sent.
 
-ENDPOINTS --> METHODS ----> PARAMETERS
+
 ---
 
     admin.php
