@@ -16,20 +16,19 @@ class WFS_Admin
      * @param $first
      * @param $last
      *
-     * @param string $full_response
      * @return array|null
      *
      * IMPORTANT:  please md5 encode the password
      */
-    public function register($username, $password, $first, $last, $full_response)
+    public function register($username, $password, $first, $last)
     {
         $users = null;
         include('mongo_setup_users.php');
 
         try
         {
-            $my_venues = array('id' => '',
-                'soldiers_placed' => 0);
+            #move this to soldiers.php
+            #$my_venues = array('id' => '','soldiers_placed' => 0);
 
 
             $insert_array = array('username' => (string) $username,
@@ -38,7 +37,9 @@ class WFS_Admin
                 'last' => (string) $last,
                 'soldiers' => 1,
                 'last_daily_soldier' => date('U'),
-                'venues' => $my_venues);
+                'venues' => array(), #$my_venues,
+                'lat' => '',
+                'lng' => '' );
 
             $users->insert($insert_array);
             $return_code = 'ok';
@@ -85,7 +86,7 @@ class WFS_Admin
 
         # query database for the user
         $login_query = $users->findOne(array("username" => (string) $username,
-            "password" => (string) $password));
+                                             "password" => (string) $password));
 
         # return 'fail' response if either username or password or both are incorrect or not found
         if(is_null($login_query))
@@ -113,8 +114,19 @@ class WFS_Admin
                 return array('response' => 'ok', 'warning' => 'solider_fail');
             }
         }
-        return array('response' => 'ok');
 
+        #verify user stats and return to caller
+
+        #perform query
+        $verify_user = $users->findOne(array('username'=> (string) $username));
+
+        if (!is_null($verify_user))
+        {
+            return array('response' => 'ok');
+        }
+        {
+            return array('response' => 'fail', 'reason' => 'user not found');
+        }
     }
 }
 

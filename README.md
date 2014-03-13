@@ -17,7 +17,6 @@ Currently methods do not verify correctness of parameters sent.
                 password            md5 encoded password
                 first               name
                 last                name
-                full_response       true or false (choose false unless you want the user details returned)
         login
                 password            md5 encoded password
                 username            unique wfs username
