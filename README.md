@@ -2,9 +2,9 @@
 RESTful API for wfs
 ===
 
-(it is assumed that passwords will be md5 encoded by the application)
+(passwords should be md5 encoded by the application)
 
-Current backend url: wfs.openciti.ca/ENDPOINT.PHP?method=METHOD&.....
+url: wfs.openciti.ca/ENDPOINT.PHP?method=METHOD&.....
 
 Currently methods do not verify correctness of parameters sent.
 
@@ -27,9 +27,8 @@ Currently methods do not verify correctness of parameters sent.
         nearby
                 lat                 latitude
                 lng                 longitude
-                username            unique wfs username
                 how_many            limit query to this many results
-                restrict_categories true or false (if true non-business venues are not queried)
+                restrict            true or false (if true non-business venues are not queried)
                 radius              in metres
 
     checkin.php
