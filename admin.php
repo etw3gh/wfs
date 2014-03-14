@@ -37,8 +37,9 @@ class WFS_Admin
                 'last' => (string) $last,
                 'soldiers' => 1,
                 'last_daily_soldier' => date('U'),
-                'venues' => array(),
-                'atloc' => null,      #current online location (null if offline)
+                #'atloc' => null,      #current online location (null if offline)
+
+                #home base / spawn site
                 'lat' => null,
                 'lng' => null  );
 
@@ -98,6 +99,8 @@ class WFS_Admin
         $login_query = $users->findOne(array("username" => (string) $username,
                                              "password" => (string) $password));
 
+        $the_date = date('U');
+
         # return 'fail' response if either username or password or both are incorrect or not found
         if(is_null($login_query))
         {
@@ -108,7 +111,7 @@ class WFS_Admin
         # give the user his soldier for the day
         # check to see if it has already not been given
 
-        $time_since_last_soldier = $login_query['last_daily_soldier'] - date('U');
+        $time_since_last_soldier = $login_query['last_daily_soldier'] - $the_date;
 
         if ($time_since_last_soldier > $seconds_per_day)
         {
@@ -117,7 +120,7 @@ class WFS_Admin
                 # issue new soldier to user and update the last_daily_soldier field
                 $users->update(array('username'=> (string) $username),
                                array('$inc' => array('soldiers' => $soldiers_per_day)),
-                               array('$set' => array('last_daily_soldier' => date('U'))));
+                               array('$set' => array('last_daily_soldier' => $the_date)));
             }
             catch(MongoCursorException $e)
             {

@@ -70,7 +70,7 @@ class WFS_Soldiers
     public function place($id, $username, $number)
     {
         # setup & initialize mongodb connections
-        $venues_db = $users_db = null;
+        $venues_db = $users = null;
         include('mongo_setup_venues_and_users.php');
 
         # determine if our user is the mayor of location supplied by $id
@@ -87,7 +87,7 @@ class WFS_Soldiers
         # according to gdd maximum 10 dice / soldiers per venue
         $max_placement = 10;
 
-        $user_query = $users_db->findOne(array('username' => $username));
+        $user_query = $users->findOne(array('username' => $username));
 
         if (is_null($user_query))
         {
@@ -107,13 +107,13 @@ class WFS_Soldiers
 
         if($number > $actual_number_of_soldiers)
         {
-            $success_array['warning'] = "$number requested, $actual_number_of_soldiers placed";
+            $success_array['placed'] = $actual_number_of_soldiers;
             $number = $actual_number_of_soldiers;
 
             # account for case where user wishes to deploy more than the max number allowed
             if ($number > $user_able_to_place)
             {
-                $success_array['warning'] = "$save_original_number requested, $user_able_to_place placed";
+                $success_array['placed'] = $user_able_to_place;
                 $number = $user_able_to_place;
             }
         }
@@ -121,11 +121,11 @@ class WFS_Soldiers
         # now place $number of soldiers at the location and remove -$number from the user
         # mongo has no '$dec' operator...
         $reduce_by = $number * (-1);
-        $users_db->update(array('username' => $username),
+        $users->update(array('username' => $username),
                           array('$inc' => array('soldiers' => $reduce_by)));
 
         $venues_db->update(array('mayor' =>$username),
-                           array('$inc' => array('soldiers' => $number)));
+                           array('$inc' => array('defenders' => $number)));
 
 
         $success_array['stats'] = array('usersoldiers' => $actual_number_of_soldiers - $number,

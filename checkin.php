@@ -44,12 +44,11 @@ class WFS_Checkin
         #check to see if user is already checked in
         try
         {
-            $login_check = $venues_db->find(array('id' => $id),
-                                            array('players' => array('$in' => $username)));
+            $login_check = $venues_db->find(array('id' => $id, 'players' => array('$in' => [$username])));
 
             if($login_check->count() != 0)
             {
-                return array('response' => 'ok', 'warning' => 'logged in');
+                return array('response' => 'ok', 'warning' => 'checked in');
             }
         }
         catch (MongoCursorException $e)
@@ -81,6 +80,9 @@ class WFS_Checkin
                 # the mayor is awarded the soldier so 1-1=0
                 $insert_array['soldiers'] = 0;
 
+                $insert_array['defenders'] = 0;
+
+
                 $insert_array['soldier_added_on'] = $the_date;
                 $insert_array['soldier_removed_on'] = $the_date;
                 $insert_array['mayor'] = $username;
@@ -109,6 +111,8 @@ class WFS_Checkin
                     return array('response' => 'fail', 'reason' => 'venue not found');
                 }
             }
+
+            #venue exists and user is not checked in
             else
             {
                 # check to see if there is already a mayor
@@ -137,6 +141,9 @@ class WFS_Checkin
                                              array('soldiers' => (int) $exists_query['soldiers'])));
                     }
                 }
+
+                return (array('response' => 'ok'));
+
             }
         }
         catch (MongoCursorException $e)
