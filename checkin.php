@@ -26,8 +26,8 @@ class WFS_Checkin
     public function checkin($id, $username)
     {
         # setup & initialize foursquare api and mongodb connections
-        $foursquare = $venues_db = null;
-        include('mongo_setup_venues.php');
+        $foursquare = $users = $venues_db = null;
+        include('mongo_setup_venues_and_users.php');
         include('foursquare_setup.php');
 
         # OBTAIN A VENUE BY VENUE ID
@@ -41,6 +41,26 @@ class WFS_Checkin
             return array('response' => 'fail', 'reason' => $the_venue->meta->code);
         }
 
+        #check to see if user is already checked in
+        try
+        {
+            $login_check = $venues_db->find(array('id' => $id),
+                                            array('players' => array('$in' => $username)));
+
+            if($login_check->count() != 0)
+            {
+                return array('response' => 'ok', 'warning' => 'logged in');
+            }
+        }
+        catch (MongoCursorException $e)
+        {
+            return array('response' => 'warning', 'reason' => $e->getMessage());
+        }
+        catch (MongoException $e)
+        {
+            return array('response' => 'warning', 'reason' => $e->getMessage());
+        }
+
         try
         {
             # check to see if venue exists (ie: min 1 wfs checkin)
@@ -48,6 +68,8 @@ class WFS_Checkin
 
             if (is_null($exists_query))
             {
+                $the_date = date('U');
+
                 # construct associative array from foursquare response for db insertion
                 $insert_array = array();
                 $insert_array['id'] = $the_venue->response->venue->id;
@@ -56,12 +78,12 @@ class WFS_Checkin
                 $insert_array['lng'] = $the_venue->response->venue->location->lng;
                 $insert_array['checkins'] = $the_venue->response->venue->stats->checkinsCount;
 
-                # the mayor is always the owner of the soldiers
+                # the mayor is awarded the soldier so 1-1=0
                 $insert_array['soldiers'] = 0;
-                $insert_array['daily_soldiers'] = 0;
-                $insert_array['daily_soldiers_added_on'] = date('U'); #check field in cron_venues.php
-                $insert_array['daily_soldiers_removed_on'] = '';
-                $insert_array['mayor'] = '';
+
+                $insert_array['soldier_added_on'] = $the_date;
+                $insert_array['soldier_removed_on'] = $the_date;
+                $insert_array['mayor'] = $username;
 
                 # only used for new venue
                 $insert_array['players'] = array($username);
@@ -69,11 +91,14 @@ class WFS_Checkin
                 # perform insert
                 $venues_db->insert($insert_array);
 
+                # give the user the soldier
+                $users->update(array('username' => $username),
+                               array('$inc' => array('soldiers' => 1)));
 
                 #verify venue stats and return to caller
                 #perform query
                 $verify_venue = $venues_db->findOne(array('id'=> $insert_array['id']),
-                                                   array('_id' => 0));
+                                                    array('_id' => 0));
 
                 if (!is_null($verify_venue))
                 {
@@ -86,10 +111,32 @@ class WFS_Checkin
             }
             else
             {
-                # perform update if venue exists
-                # pushes player onto player list
-                $venues_db->update(array('id' => $id),
-                                   array('$push' => array('players' => $username)));
+                # check to see if there is already a mayor
+                # if not make this user the mayor
+                if (!is_null($exists_query['mayor']))
+                {
+                    # perform update if venue exists
+                    # pushes player onto player list
+                    $venues_db->update(array('id' => $id),
+                                       array('$push' => array('players' => $username)));
+                }
+                else
+                {
+                    # perform update if venue exists
+                    # pushes player onto player list
+                    # make this player the mayor
+                    $venues_db->update(array('id' => $id),
+                                       array('$set' => array('mayor' => $username)),
+                                       array('$push' => array('players' => $username)));
+
+                    # assign soldier (if available) to this user
+                    if ($exists_query['soldiers'] > 0)
+                    {
+                        $users->update(array('username' => $username),
+                                       array('$inc' =>
+                                             array('soldiers' => (int) $exists_query['soldiers'])));
+                    }
+                }
             }
         }
         catch (MongoCursorException $e)
@@ -100,7 +147,6 @@ class WFS_Checkin
         {
             return array('response' => 'fail', 'reason' => $e->getMessage());
         }
-        #return array('response' => 'ok');
     }
 
 
@@ -124,7 +170,7 @@ class WFS_Checkin
         try
         {
             $venues_db->update(array('id' => $id),
-                array('$pull' => array('players' => $username)));
+                               array('$pull' => array('players' => $username)));
         }
         catch (MongoCursorException $e)
         {

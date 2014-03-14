@@ -30,7 +30,7 @@ class WFS_Soldiers
 
         if(!is_null($is_mayor_query))
         {
-            $soldiers_available = $is_mayor_query['daily_soldiers'];
+            $soldiers_available = $is_mayor_query['soldiers'];
             if ($soldiers_available > 0)
             {
                 # first add to user
@@ -40,8 +40,8 @@ class WFS_Soldiers
                 # remove from venue (sets field to zero
                 # TODO determine if soldier related timestamps need altering
                 $venues_db->update(array('id' => $id),
-                                   array('$set' => array('daily_soldiers' => 0,
-                                                         'daily_soldiers_removed_on' => date('U'))));
+                                   array('$set' => array('soldiers' => 0,
+                                                         'soldiers_removed_on' => date('U'))));
             }
             else
             {
