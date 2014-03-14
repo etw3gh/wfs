@@ -53,10 +53,21 @@ class WFS_Admin
             return array('response' => 'fail');
         }
 
-        #prepare return
-        $insert_array['response'] = (string) $return_code;
+        #verify user stats and return to caller
+        #perform query
+        $verify_user = $users->findOne(array('username'=> (string) $username), array('_id' => 0));
 
-        return $insert_array;
+        #prepare return
+        $verify_user['response'] = (string) $return_code;
+
+        if (!is_null($verify_user))
+        {
+            $verify_user['response'] = 'ok';
+            return $verify_user;
+        }
+        {
+            return array('response' => 'fail', 'reason' => 'user not found');
+        }
     }
 
     /**
@@ -111,13 +122,13 @@ class WFS_Admin
         }
 
         #verify user stats and return to caller
-
         #perform query
-        $verify_user = $users->findOne(array('username'=> (string) $username));
+        $verify_user = $users->findOne(array('username'=> (string) $username), array('_id' => 0));
 
         if (!is_null($verify_user))
         {
-            return array('response' => 'ok');
+            $verify_user['response'] = 'ok';
+            return $verify_user;
         }
         {
             return array('response' => 'fail', 'reason' => 'user not found');
