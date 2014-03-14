@@ -16,7 +16,7 @@ class WFS_Admin
      * @param $first
      * @param $last
      *
-     * @return array|null
+     * @return array a json string with the user details echoed back to the caller
      *
      * IMPORTANT:  please md5 encode the password
      */
@@ -53,15 +53,10 @@ class WFS_Admin
             return array('response' => 'fail');
         }
 
-        if(strtolower($full_response) == 'true' )
-        {
-            $insert_array['response'] = (string) $return_code;
-            return $insert_array;
-        }
-        else
-        {
-            return array('response' => (string) $return_code);
-        }
+        #prepare return
+        $insert_array['response'] = (string) $return_code;
+
+        return $insert_array;
     }
 
     /**
