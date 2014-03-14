@@ -37,9 +37,10 @@ class WFS_Admin
                 'last' => (string) $last,
                 'soldiers' => 1,
                 'last_daily_soldier' => date('U'),
-                'venues' => array(), #$my_venues,
-                'lat' => '',
-                'lng' => '' );
+                'venues' => array(),
+                'atloc' => null,      #current online location (null if offline)
+                'lat' => null,
+                'lng' => null  );
 
             $users->insert($insert_array);
             $return_code = 'ok';
@@ -55,7 +56,8 @@ class WFS_Admin
 
         #verify user stats and return to caller
         #perform query
-        $verify_user = $users->findOne(array('username'=> (string) $username), array('_id' => 0));
+        $verify_user = $users->findOne(array('username'=> (string) $username),
+                                       array('_id' => 0, 'password' => 0));
 
         #prepare return
         $verify_user['response'] = (string) $return_code;
@@ -76,12 +78,14 @@ class WFS_Admin
      * @return array
      *
      * Logs in an existing warfoursquare user to the server
+     * adds username to the 'online' collection
+     *
      *
      * IMPORTANT:   remember to md5 encode password
      */
     public function login($username, $password)
     {
-        $users = null;
+        $online = $users = null;
         include('mongo_setup_users.php');
 
         # calculate the seconds in a day for soldier calculations
@@ -123,7 +127,8 @@ class WFS_Admin
 
         #verify user stats and return to caller
         #perform query
-        $verify_user = $users->findOne(array('username'=> (string) $username), array('_id' => 0));
+        $verify_user = $users->findOne(array('username'=> (string) $username),
+                                       array('_id' => 0, 'password' => 0));
 
         if (!is_null($verify_user))
         {

@@ -41,26 +41,6 @@ class WFS_Checkin
             return array('response' => 'fail', 'reason' => $the_venue->meta->code);
         }
 
-        # construct associative array from foursquare response for db insertion
-        $insert_array = array();
-        $insert_array['id'] = $the_venue->response->venue->id;
-        $insert_array['name'] = $the_venue->response->venue->name;
-        $insert_array['lat'] = $the_venue->response->venue->location->lat;
-        $insert_array['lng'] = $the_venue->response->venue->location->lng;
-        $insert_array['checkins'] = $the_venue->response->venue->stats->checkinsCount;
-        $insert_array['users'] = $the_venue->response->venue->stats->usersCount;
-        $insert_array['tips'] = $the_venue->response->venue->stats->tipCount;
-
-        # the mayor is always the owner of the soldiers
-        $insert_array['soldiers'] = 0;
-        $insert_array['daily_soldiers'] = 0;
-        $insert_array['daily_soldiers_added_on'] = date('U'); #check field in cron_venues.php
-        $insert_array['daily_soldiers_removed_on'] = '';
-        $insert_array['mayor'] = '';
-        #$insert_array[''] = 0;
-        # only used for new venue
-        $insert_array['players'] = array($username);
-
         try
         {
             # check to see if venue exists (ie: min 1 wfs checkin)
@@ -68,21 +48,48 @@ class WFS_Checkin
 
             if (is_null($exists_query))
             {
-                # perform insert if no venue exists
+                # construct associative array from foursquare response for db insertion
+                $insert_array = array();
+                $insert_array['id'] = $the_venue->response->venue->id;
+                $insert_array['name'] = $the_venue->response->venue->name;
+                $insert_array['lat'] = $the_venue->response->venue->location->lat;
+                $insert_array['lng'] = $the_venue->response->venue->location->lng;
+                $insert_array['checkins'] = $the_venue->response->venue->stats->checkinsCount;
+
+                # the mayor is always the owner of the soldiers
+                $insert_array['soldiers'] = 0;
+                $insert_array['daily_soldiers'] = 0;
+                $insert_array['daily_soldiers_added_on'] = date('U'); #check field in cron_venues.php
+                $insert_array['daily_soldiers_removed_on'] = '';
+                $insert_array['mayor'] = '';
+
+                # only used for new venue
+                $insert_array['players'] = array($username);
+
+                # perform insert
                 $venues_db->insert($insert_array);
 
-                return array('response' => 'ok',
-                    'stats' => array('opponent' => $exists_query['soldiers']['owner'],
-                        'troops' => $exists_query['soldiers']['number'],
-                        'mayor' => $exists_query['mayor'],
-                        'other_stuff' => 'to be determined'));
+
+                #verify venue stats and return to caller
+                #perform query
+                $verify_venue = $venues_db->findOne(array('id'=> $insert_array['id']),
+                                                   array('_id' => 0));
+
+                if (!is_null($verify_venue))
+                {
+                    $verify_venue['response'] = 'ok';
+                    return $verify_venue;
+                }
+                {
+                    return array('response' => 'fail', 'reason' => 'venue not found');
+                }
             }
             else
             {
                 # perform update if venue exists
                 # pushes player onto player list
                 $venues_db->update(array('id' => $id),
-                    array('$push' => array('players' => $username)));
+                                   array('$push' => array('players' => $username)));
             }
         }
         catch (MongoCursorException $e)
@@ -93,7 +100,7 @@ class WFS_Checkin
         {
             return array('response' => 'fail', 'reason' => $e->getMessage());
         }
-        return array('response' => 'ok');
+        #return array('response' => 'ok');
     }
 
 
