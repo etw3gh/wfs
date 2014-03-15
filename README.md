@@ -56,21 +56,53 @@ Currently methods do not verify correctness of parameters sent.
 
 Example:
 ---
-    http://wfs.openciti.ca/nearby.php?method=nearby&lat=43.65&lng=-79.38&how_many=1&restrict=false
+    http://wfs.openciti.ca/nearby.php?method=nearby&lat=43.6666&lng=-79.4705044018&how_many=4&restrict=true&radius=2000
+
     {
         "response": "ok",
         "top_venues": {
             "result": [
                 {
                     "venues": {
-                        "id": "4ad8cd16f964a520c91421e3",
-                        "name": "Yonge-Dundas Square",
-                        "distance": 71,
-                        "checkins": 38581
+                        "id": "4adb2c64f964a520ae2421e3",
+                        "name": "Crema Coffee Co.",
+                        "distance": 185,
+                        "checkins": 2785,
+                        "lat": 43.665444738559,
+                        "lng": -79.472165513691
+                    }
+                },
+                {
+                    "venues": {
+                        "id": "4ce570db14682d439d298f61",
+                        "name": "Starbucks",
+                        "distance": 188,
+                        "checkins": 1314,
+                        "lat": 43.665335193728,
+                        "lng": -79.47206663889
+                    }
+                },
+                {
+                    "venues": {
+                        "id": "4f84799ae4b077f839341fe8",
+                        "name": "3030 Dundas",
+                        "distance": 97,
+                        "checkins": 1092,
+                        "lat": 43.665730613695,
+                        "lng": -79.470407723556
+                    }
+                },
+                {
+                    "venues": {
+                        "id": "4b9c345af964a520b35436e3",
+                        "name": "Pho Huong",
+                        "distance": 215,
+                        "checkins": 942,
+                        "lat": 43.665325991545,
+                        "lng": -79.468490595292
                     }
                 }
-            ]
+            ],
             "ok": 1
         }
     }
-
