@@ -1,5 +1,8 @@
 <?php
 
+
+#tester to see structure of foursquare response
+
 # setup & initialize foursquare api and mongodb connections
 $foursquare = $venues_db = $nearby_venues = $wfs = null;
 include('mongo_setup_venues.php');
