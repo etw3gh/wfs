@@ -79,6 +79,8 @@ class WFS_Nearby
             $insert_array['name'] = $v->name;
             $insert_array['distance'] = $v->location->distance;
             $insert_array['checkins'] = $v->stats->checkinsCount;
+            $insert_array['lat'] = $v->location->lat;
+            $insert_array['lng'] = $v->location->lng;
 
             try
             {
