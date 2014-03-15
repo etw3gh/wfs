@@ -56,7 +56,7 @@ Currently methods do not verify correctness of parameters sent.
 
 Example:
 ---
-    http://wfs.openciti.ca/nearby.php?method=nearby&lat=43.656714493508&lng=-79.380351305008&how_many=1&username=stevejobs&restrict_categories=false
+    http://wfs.openciti.ca/nearby.php?method=nearby&lat=43.656714493508&lng=-79.380351305008&how_many=1&restrict=false
     {
         "response": "ok",
         "top_venues": {
