@@ -22,7 +22,7 @@ class WFS_Soldiers
      */
     public function pickup($id, $username)
     {
-        $venues_db = null; $users_db = null;
+        $venues_db = null; $users = null;
         include('mongo_setup_venues_and_users.php');
 
         # determine if our user is the mayor of location supplied by $id
@@ -34,7 +34,7 @@ class WFS_Soldiers
             if ($soldiers_available > 0)
             {
                 # first add to user
-                $users_db->update(array('username' => $username),
+                $users->update(array('username' => $username),
                                   array('$inc' => array('soldiers' => $soldiers_available)));
 
                 # remove from venue (sets field to zero
