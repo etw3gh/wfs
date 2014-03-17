@@ -6,12 +6,13 @@ RESTful API for wfs
 
 url: wfs.openciti.ca/ENDPOINT.PHP?method=METHOD&.....
 
-Currently methods do not verify correctness of parameters sent.
-
-
+RTFS
 ---
 
-    admin.php
+Read the source code comments for more details
+
+
+    apiadmin.php
         register
                 username            unique wfs username
                 password            md5 encoded password
@@ -22,7 +23,7 @@ Currently methods do not verify correctness of parameters sent.
                 username            unique wfs username
 
 
-    nearby.php
+    apinearby.php
         nearby
                 lat                 latitude
                 lng                 longitude
@@ -30,7 +31,7 @@ Currently methods do not verify correctness of parameters sent.
                 restrict            true or false (if true non-business venues are not queried)
                 radius              in metres
 
-    checkin.php
+    apicheckin.php
         checkin
                 id                  unique FourSquare venue id
                 username            unique wfs username
@@ -39,7 +40,7 @@ Currently methods do not verify correctness of parameters sent.
                 username            unique wfs username
 
 
-    soldiers.php
+    apisoldiers.php
         place
                 id                  unique FourSquare venue id
                 username            unique wfs username
@@ -48,10 +49,28 @@ Currently methods do not verify correctness of parameters sent.
                 id                  unique FourSquare venue id
                 username            unique wfs username
 
-    TODO:
-    attack.php
-    stats.php
-    other???.php
+
+    apiattack.php
+        attack
+                id                  unique FourSquare venue id
+                username            unique wfs username of the attacker
+                attackers           number of soldiers to attack with
+                leavebehind         number of soldiers to leave behind after victory
+
+
+    apiquery.php
+        user
+                username            unique wfs username of the attacker
+
+        venue
+                id                  unique FourSquare venue id
+
+        mayors
+                none
+
+        weakest
+                how_many            limit results to this number sorted by weakest venue
+
 
 
 Example:
