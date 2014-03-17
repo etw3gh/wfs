@@ -1,4 +1,3 @@
-![Alt text](badman.jpg "badman.jpg")
 RESTful API for wfs
 ===
 
@@ -125,3 +124,11 @@ Example:
             "ok": 1
         }
     }
+
+Lenin bad man
+---
+![Alt text](badman.jpg "badman.jpg")
+
+Putin bad man
+---
+![Alt text](badhorseman.jpg "badhorseman.jpg")
