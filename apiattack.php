@@ -96,15 +96,26 @@ class WFS_Attack
         # short circuit 5 - not defended, default win for attacker
         if($venue_query['defenders'] <= 0 or is_null($venue_query['defenders']))
         {
-            # adjust attack level to what is actually available to the attacker
-            if ($attackers > $soldiers_available)
-            {
-                $attack_with = $soldiers_available;
-            }
-            else
-            {
-                $attack_with = $attackers;
-            }
+
+
+        }
+
+
+        # adjust attack level to what is actually available to the attacker
+        if ($attackers > $soldiers_available)
+        {
+            $attack_with = $soldiers_available;
+        }
+        else
+        {
+            $attack_with = $attackers;
+        }
+
+        # keep attacking number within limit set by game design document (10)
+        if ($attack_with > 10)
+        {
+            $attack_with = 10;
+        }
 
             $users->update(array('username' => $username),
                            array('$inc' => array('soldiers' => $soldiers_available)));
@@ -116,7 +127,7 @@ class WFS_Attack
                     'soldiers_removed_on' => date('U'))));
 
 
-        }
+
 
 
         #setup defender

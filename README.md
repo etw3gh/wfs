@@ -59,19 +59,19 @@ Read the source code comments for more details
 
     apiquery.php
         user
-                $wfs_secret_key     wfs secret only known to developers
+                wfs_secret_key     wfs secret only known to developers
                 username            unique wfs username of the attacker
 
 
         venue
-                $wfs_secret_key     wfs secret only known to developers
+                wfs_secret_key     wfs secret only known to developers
                 id                  unique FourSquare venue id
 
         mayors
-                $wfs_secret_key     wfs secret only known to developers
+                wfs_secret_key     wfs secret only known to developers
 
         weakest
-                $wfs_secret_key     wfs secret only known to developers
+                wfs_secret_key     wfs secret only known to developers
                 how_many            limit results to this number sorted by weakest venue
 
 
