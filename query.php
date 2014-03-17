@@ -20,7 +20,7 @@ class WFS_Query
      * @param $wfs_secret_key
      * @return array|bool
      */
-    public function user($username, $wfs_secret_key)
+    public function user($wfs_secret_key, $username)
     {
         require_once('../../../wfs_secret.php');
 
@@ -40,7 +40,7 @@ class WFS_Query
      * @param $wfs_secret_key
      * @return array|bool
      */
-    public function venue($id, $wfs_secret_key)
+    public function venue($wfs_secret_key, $id)
     {
         require_once('../../../wfs_secret.php');
         if (WFS_SECRET !== $wfs_secret_key)

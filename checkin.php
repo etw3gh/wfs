@@ -163,6 +163,7 @@ class WFS_Checkin
      *
      * method to check a user out of a venue
      * simply pulls their username from venues 'players' array
+     * also must check to see if the user is the mayor and then reset this field
      *
      * assume a player may be at only one location at any given time
      *
@@ -176,8 +177,24 @@ class WFS_Checkin
 
         try
         {
-            $venues_db->update(array('id' => $id),
-                               array('$pull' => array('players' => $username)));
+            #check to see if the user is mayor of the venue
+
+            # determine if our user is the mayor of location supplied by $id
+            $is_mayor_query = $venues_db->findOne(array('mayor' => $username, 'id' => $id));
+
+            #case where user is not the mayor
+            if(is_null($is_mayor_query))
+            {
+                $venues_db->update(array('id' => $id),
+                                   array('$pull' => array('players' => $username)));
+            }
+            #case where user is the mayor
+            else
+            {
+                $venues_db->update(array('id' => $id),
+                                   array('$set' => array('mayor' => '')),
+                                   array('$pull' => array('players' => $username)));
+            }
         }
         catch (MongoCursorException $e)
         {
@@ -187,6 +204,8 @@ class WFS_Checkin
         {
             return array('response' => 'fail', 'reason' => $e->getMessage());
         }
+
+        #success
         return array('response' => 'ok');
     }
 }

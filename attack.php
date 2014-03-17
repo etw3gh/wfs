@@ -20,6 +20,22 @@ class WFS_Attack
      *
      * @TODO try catch around mongodb operations
      *
+     * SAMPLE VENUE DOCUMENT
+     *
+     * > db.venues.find()
+     *   { "_id" : ObjectId("53226eb93a3cad98468b4577"),
+     *     "checkins" : 623,
+     *     "defenders" : 2,
+     *     "id" : "4b11a4c8f964a5203c8123e3",
+     *     "lat" : 43.665515,
+     *     "lng" : -79.46983805,
+     *     "mayor" : "iamsabbath",
+     *     "name" : "Vesuvio's Pizzeria & Spaghetti House",
+     *     "players" : [  "iamsabbath",  "sabbathdrummer" ],
+     *     "soldier_added_on" : "1394765497",
+     *     "soldier_removed_on" : "1394765497",
+     *     "soldiers" : 0 }
+     *
      */
     public function attack($id, $username, $attackers)
     {
@@ -27,12 +43,18 @@ class WFS_Attack
         include('mongo_setup_venues_and_users.php');
 
         # determine if our user is the mayor of location supplied by $id
-        $is_mayor_query = $venues_db->findOne(array('mayor' => $username, 'id' => $id));
+        $venue_query = $venues_db->findOne(array('mayor' => $username, 'id' => $id));
 
-        if(is_null($is_mayor_query))
+        if(is_null($venue_query))
         {
             return array('response' => 'fail', 'reason' => 'no mayor to attack');
         }
+
+        #setup defender
+
+
+
+        #setup attacker
 
 
 
