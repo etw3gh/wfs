@@ -13,6 +13,13 @@ require_once('RestServer.php');
 
 class WFS_Query
 {
+    /**
+     * method to return a user document corresponding to a unique wfs username
+     *
+     * @param $username
+     * @param $wfs_secret_key
+     * @return array|bool
+     */
     public function user($username, $wfs_secret_key)
     {
         require_once('../../../wfs_secret.php');
@@ -26,6 +33,13 @@ class WFS_Query
         return true;
     }
 
+    /**
+     * method to return a venue document corresponding to a unique venue id (same as the 4s id)
+     *
+     * @param $id
+     * @param $wfs_secret_key
+     * @return array|bool
+     */
     public function venue($id, $wfs_secret_key)
     {
         require_once('../../../wfs_secret.php');
