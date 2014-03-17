@@ -7,10 +7,10 @@ require_once('RestServer.php');
  * Class WarFareSquare
  */
 
-class WFS_Soldiers
+class WFS_Attack
 {
     /**
-     * method to allow the venue's controlling user to pickup the soldier.
+     * method to allow the venue's controlling user to attack a position
      *
      * @param $id       string    unique foursquare venue id
      * @param $username string    unique warfoursquare username
@@ -20,7 +20,7 @@ class WFS_Soldiers
      * @TODO try catch around mongodb operations
      *
      */
-    public function pickup($id, $username)
+    public function attack($id, $username)
     {
         $venues_db = null; $users = null;
         include('mongo_setup_venues_and_users.php');
@@ -28,31 +28,30 @@ class WFS_Soldiers
         # determine if our user is the mayor of location supplied by $id
         $is_mayor_query = $venues_db->findOne(array('mayor' => $username, 'id' => $id));
 
-        #short circuit
-        if(is_null($is_mayor_query))
+        if(!is_null($is_mayor_query))
         {
-            return array('response' => 'fail', 'reason' => 'user not mayor');
-        }
+            $soldiers_available = $is_mayor_query['soldiers'];
+            if ($soldiers_available > 0)
+            {
+                # first add to user
+                $users->update(array('username' => $username),
+                    array('$inc' => array('soldiers' => $soldiers_available)));
 
-        $soldiers_available = $is_mayor_query['soldiers'];
-        if ($soldiers_available > 0)
-        {
-            # first add to user
-            $users->update(array('username' => $username),
-                              array('$inc' => array('soldiers' => $soldiers_available)));
-
-            # remove from venue (sets field to zero
-            # TODO determine if soldier related timestamps need altering
-            $venues_db->update(array('id' => $id),
-                               array('$set' => array('soldiers' => 0,
-                                                     'soldiers_removed_on' => date('U'))));
+                # remove from venue (sets field to zero
+                # TODO determine if soldier related timestamps need altering
+                $venues_db->update(array('id' => $id),
+                    array('$set' => array('soldiers' => 0,
+                        'soldiers_removed_on' => date('U'))));
+            }
+            else
+            {
+                return array('response' => 'fail', 'reason' => 'no soldiers');
+            }
         }
         else
         {
-            return array('response' => 'fail', 'reason' => 'no soldiers');
+            return array('response' => 'fail', 'reason' => 'user not mayor');
         }
-
-
 
         # TODO return stats . . .
         return array('response' => 'ok');
@@ -123,14 +122,14 @@ class WFS_Soldiers
         # mongo has no '$dec' operator...
         $reduce_by = $number * (-1);
         $users->update(array('username' => $username),
-                          array('$inc' => array('soldiers' => $reduce_by)));
+            array('$inc' => array('soldiers' => $reduce_by)));
 
         $venues_db->update(array('mayor' =>$username),
-                           array('$inc' => array('defenders' => $number)));
+            array('$inc' => array('defenders' => $number)));
 
 
         $success_array['stats'] = array('usersoldiers' => $actual_number_of_soldiers - $number,
-                                        'venuesolders' => $soldiers_already_defending + $number);
+            'venuesolders' => $soldiers_already_defending + $number);
         return $success_array;
     }
 }
@@ -138,5 +137,5 @@ class WFS_Soldiers
 ###################### MAIN
 
 $rest = new RestServer();
-$rest->addServiceClass('WFS_Soldiers');
+$rest->addServiceClass('WFS_Attack');
 $rest->handle();
