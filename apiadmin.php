@@ -27,7 +27,7 @@ class WFS_Admin
 
         try
         {
-            #move this to soldiers.php
+            #move this to apisoldiers.php
             #$my_venues = array('id' => '','soldiers_placed' => 0);
 
 

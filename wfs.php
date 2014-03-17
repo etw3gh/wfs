@@ -5,12 +5,12 @@
     /**
      * DEPRECIATED USE THESE ENDPOINTS INSTEAD:
      *
-     * admin.php
-     * nearby.php
-     * checkin.php
-     * soldiers.php
-     * attack.php
-     * query.php
+     * apiadmin.php
+     * apinearby.php
+     * apicheckin.php
+     * apisoldiers.php
+     * apiattack.php
+     * apiquery.php
      */
 class WarFareSquare
     {

@@ -27,7 +27,7 @@ class WFS_Nearby
      *
      * @return array json string
      *
-     * @todo stash nearby query to save second call to foursquare api in checkin.php
+     * @todo stash nearby query to save second call to foursquare api in apicheckin.php
      */
     public function nearby($lat, $lng, $how_many, $restrict, $radius)
     {
