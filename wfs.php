@@ -9,7 +9,8 @@
      * nearby.php
      * checkin.php
      * soldiers.php
-     *
+     * attack.php
+     * query.php
      */
 class WarFareSquare
     {
