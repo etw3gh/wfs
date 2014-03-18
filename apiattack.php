@@ -83,7 +83,7 @@ class WFS_Attack
         $last_attacked_by  = $venue_query['last_attacked_by'];
 
         #if attacking user is the same as the last attacker calculate if its been 12 hours
-        if ($username == $last_attacked_by)
+        if (!is_null($last_attacked_by) and $username == $last_attacked_by)
         {
             $last_attacked_on = $venue_query['last_attacked_on'];
             $seconds_in_12_hours = 12 * 60 * 60;
@@ -95,8 +95,8 @@ class WFS_Attack
             if ($next_attack_may_occur_in > 0)
             {
                 return array('response' => 'fail',
-                             'reason' => 're-attack too soon',
-                             'secondsleft' => $next_attack_may_occur_in);
+                             'reason' => 'too soon',
+                             'remain' => $next_attack_may_occur_in);
             }
         }
 
@@ -134,16 +134,22 @@ class WFS_Attack
         $venue_soldiers = $venue_query['soldiers'];
 
         # short circuit - not defended, default win for attacker
-        if($defenders <= 0 or is_null($defenders))
+        if (is_null($defenders))
+        {
+            $defenders =0;
+        }
+
+        if($defenders <= 0)
         {
             /*
-             * set soldiers to 0 ?????????? check to see if there are soldiers??????
+             * set venue soldiers to 0
+             * assign venue soldiers to attacker
              * set defenders to $leavebehind
              * adjust last_attacked_on and last_attacked_by
              * set mayor to attacker
              * kick ex-mayor to the curb
              *
-             * if undefended so soldier is lost by default winner
+             * if undefended no soldier is lost by default winner
              *
              */
             $venues_db->update(array('id' => $id),
@@ -156,8 +162,9 @@ class WFS_Attack
 
             # subtract $leavebehind number of soldiers from the user
 
-            #mongodb has no $dec operator so $inc by negative
-            $reduce_soldiers_by = (-1) * $leavebehind;
+            # mongodb has no $dec operator so $inc by negative
+            # adjust by any stray venue soldiers there may be hanging about
+            $reduce_soldiers_by = (-1) * ($leavebehind - 1);
 
             $users->update(array('username' => $username),
                            array('$inc' => array('soldiers' => (int) $reduce_soldiers_by)));
@@ -189,7 +196,7 @@ class WFS_Attack
         # prepare dice cup
         $attack_value = 0;
 
-        # roll dice per soldier and push onto $attack_stack
+        # roll dice per soldier and accumulate the value
         for ($rolls = 0 ; $rolls < $attack_with ; $rolls++)
         {
             $attack_value += rand(1,6);
@@ -201,7 +208,7 @@ class WFS_Attack
         # assign dice
         $defend_value = 0;
 
-        # roll dice per soldier and push onto $defend_stack
+        # roll dice per soldier and accumulate the value
         for ($rolls = 0 ; $rolls < $defenders ; $rolls++)
         {
             $defend_value += rand(1,6);
