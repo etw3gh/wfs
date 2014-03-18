@@ -21,7 +21,7 @@ class WFS_Attack
      *
      * @TODO try catch around mongodb operations
      * @TODO check  last_attacked_on and last_attacked_by from venue
-     *
+     * @TODO determine appropriate setting for soldier_added_on (currently set to null)
      *
      * SAMPLE USER DOCUMENT
      *
@@ -149,6 +149,9 @@ class WFS_Attack
              * set mayor to attacker
              * kick ex-mayor to the curb
              *
+             * set soldier_removed_on to current date
+             * ??? set soldier_added_on to null ????
+             *
              * if undefended no soldier is lost by default winner
              *
              */
@@ -157,7 +160,9 @@ class WFS_Attack
                                                      'mayor' => (string) $username,
                                                      'defenders' => (int) $leavebehind),
                                                      'last_attacked_on' => (string) $the_date,
-                                                     'last_attacked_by' => (string) $username),
+                                                     'last_attacked_by' => (string) $username,
+                                                     'soldier_added_on' => null,
+                                                     'soldier_removed_on' => (string) $the_date),
                                array('$pull' => array('players' => $current_mayor)));
 
             # subtract $leavebehind number of soldiers from the user
@@ -233,6 +238,9 @@ class WFS_Attack
              *
              *  reduce attacker soldiers by 1
              *
+             * set soldier_removed_on to current date
+             * set soldier_added_on to null
+             *
              *  eliminate defenders by
              *  replacing defenders with $leavebehind which are owned by attacker / mayor /winner
              *
@@ -243,7 +251,9 @@ class WFS_Attack
                                                      'mayor' => (string) $username,
                                                      'defenders' => (int) $leavebehind),
                                                      'last_attacked_on' => (string) $the_date,
-                                                     'last_attacked_by' => (string) $username),
+                                                     'last_attacked_by' => (string) $username,
+                                                     'soldier_added_on' => null,
+                                                     'soldier_removed_on' => (string) $the_date),
                                array('$pull' => array('players' => $current_mayor)));
 
             # subtract $leavebehind number of soldiers from the user
