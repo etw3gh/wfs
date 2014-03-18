@@ -3,7 +3,9 @@ RESTful API for wfs
 
 (passwords should be md5 encoded by the application)
 
-url: wfs.openciti.ca/ENDPOINT.PHP?method=METHOD&.....
+http://wfs.openciti.ca...
+
+...ENDPOINT.PHP?method=METHOD&.....
 
 RTFS
 ---
@@ -26,7 +28,7 @@ Read the source code comments for more details
         nearby
                 lat                 latitude
                 lng                 longitude
-                how_many            limit query to this many results
+                howmany            limit query to this many results
                 restrict            true or false (if true non-business venues are not queried)
                 radius              in metres
 
@@ -59,19 +61,19 @@ Read the source code comments for more details
 
     apiquery.php
         user
-                wfs_secret_key     wfs secret only known to developers
+                secret              wfs secret only known to developers
                 username            unique wfs username of the attacker
 
 
         venue
-                wfs_secret_key     wfs secret only known to developers
+                secret              wfs secret only known to developers
                 id                  unique FourSquare venue id
 
         mayors
-                wfs_secret_key     wfs secret only known to developers
+                secret              wfs secret only known to developers
 
         weakest
-                wfs_secret_key     wfs secret only known to developers
+                secret              wfs secret only known to developers
                 how_many            limit results to this number sorted by weakest venue
 
 

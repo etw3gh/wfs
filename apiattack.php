@@ -20,6 +20,7 @@ class WFS_Attack
      * @return array
      *
      * @TODO try catch around mongodb operations
+     * @TODO check  last_attacked_on and last_attacked_by from venue
      *
      * SAMPLE USER DOCUMENT
      *
@@ -55,29 +56,46 @@ class WFS_Attack
      */
     public function attack($id, $username, $attackers, $leavebehind)
     {
-        $venues_db = null; $users = null;
+        $venues_db = $users = null;
         include('mongo_setup_venues_and_users.php');
 
         # get venue details
         $venue_query = $venues_db->findOne(array('id' => $id));
 
-        # short circuit 1 - bad venue
+        # short circuit - bad venue
         if(is_null($venue_query))
         {
             return array('response' => 'fail', 'reason' => 'invalid venue');
         }
 
-        # short circuit 2 - no mayor
+        # save the date
+        $the_date = date('U');
+
+        # short circuit - re-attack too within 12 hours
+        $last_attacked_on = $venue_query['last_attacked_on'];
+        $last_attacked_by  = $venue_query['last_attacked_by'];
+        $seconds_in_12_hours = 12 * 60 * 60;
+        $time_since_last_attack =  - $the_date;
+
+        if ($last_attacked_on )
+
+
+        # save current mayor into local alias
+        $current_mayor = $venue_query['mayor'];
+
+        # short circuit - no mayor
         # TODO should we make this user the mayor???
-        if($venue_query['mayor'] == '' or is_null($venue_query['mayor']))
+        if($current_mayor == '' or is_null($current_mayor))
         {
             return array('response' => 'fail', 'reason' => 'no mayor to attack');
         }
 
+
+
         # get attacker details
         $attacker_query = $users->findOne(array('username' => $username));
 
-        # short circuit 3 - invalid attacker
+        # short circuit - invalid attacker
         if (is_null($attacker_query))
         {
             return array('response' => 'fail', 'reason' => 'invalid attacker');
@@ -87,19 +105,40 @@ class WFS_Attack
         $attack_with = null;
         $soldiers_available = $attacker_query['soldiers'];
 
-        # short circuit 4 - the attacker has insufficient soldiers
+        # short circuit - the attacker has insufficient soldiers
         if ($soldiers_available <= 0 or is_null($soldiers_available))
         {
             return array('response' => 'fail', 'reason' => 'insufficient soldiers');
         }
 
-        # short circuit 5 - not defended, default win for attacker
-        if($venue_query['defenders'] <= 0 or is_null($venue_query['defenders']))
+        # save defenders into local alias
+        $defenders = $venue_query['defenders'];
+
+        # short circuit - not defended, default win for attacker
+        if($defenders <= 0 or is_null($defenders))
         {
+            /*
+             * set defenders to 0
+             * set mayor to attacker
+             * kick ex-mayor to the curb
+             *
+             * if undefended the
+             *
+             */
+            $venues_db->update(array('id' => $id),
+                               array('$set' => array('soldiers' => 0,
+                                                     'mayor' => (string) $username,
+                                                     'defenders' => (int) $leavebehind),
+                                                     'last_attacked_on' => $the_date,
+                                                     'last_attacked_by' => $username),
+                               array('$pull' => array('players' => $current_mayor)));
 
-
+            return array('result' => 'ok', 'outcome' => 'win');
         }
 
+        #proceed with attack
+
+        #prepare attacker-----------------------------------------------------
 
         # adjust attack level to what is actually available to the attacker
         if ($attackers > $soldiers_available)
@@ -117,14 +156,53 @@ class WFS_Attack
             $attack_with = 10;
         }
 
-            $users->update(array('username' => $username),
-                           array('$inc' => array('soldiers' => $soldiers_available)));
+        # prepare dice cup
+        $attack_value = 0;
 
-            # remove from venue (sets field to zero
-            # TODO determine if soldier related timestamps need altering
-            $venues_db->update(array('id' => $id),
-                array('$set' => array('soldiers' => 0,
-                    'soldiers_removed_on' => date('U'))));
+        # roll dice per soldier and push onto $attack_stack
+        for ($rolls = 0 ; $rolls < $attack_with ; $rolls++)
+        {
+            $attack_value += rand(1,6);
+        }
+
+
+        #prepare defender-----------------------------------------------------
+
+        # assign dice
+        $defend_value = 0;
+
+        # roll dice per soldier and push onto $defend_stack
+        for ($rolls = 0 ; $rolls < $defenders ; $rolls++)
+        {
+            $defend_value += rand(1,6);
+        }
+
+        # roll additional 12 sided die as per Game Design Document
+        $defend_value += rand(1,12);
+
+        # decide winner / loser (tie goes to the house)
+
+        #attacker wins
+        if ($attack_value > $defend_value)
+        {
+
+        }
+        #defender wins
+        else
+        {
+
+        }
+
+        $users->update(array('username' => $username),
+                       array('$inc' => array('soldiers' => $soldiers_available)));
+
+        # remove from venue (sets field to zero
+        # TODO determine if soldier related timestamps need altering
+        $venues_db->update(array('id' => $id),
+                           array('$set' => array('soldiers' => 0,
+                                                 'soldiers_removed_on' => $the_date,
+
+                           )));
 
 
 

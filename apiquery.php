@@ -17,14 +17,14 @@ class WFS_Query
      * method to return a user document corresponding to a unique wfs username
      *
      * @param $username
-     * @param $wfs_secret_key
+     * @param $secret
      * @return array|bool
      */
-    public function user($wfs_secret_key, $username)
+    public function user($secret, $username)
     {
         require_once('../../../wfs_secret.php');
 
-        if (WFS_SECRET !== $wfs_secret_key)
+        if (WFS_SECRET !== $secret)
         {
             return array('response' => 'fail', 'reason' => 'invalid wfs secret');
         }
@@ -37,13 +37,13 @@ class WFS_Query
      * method to return a venue document corresponding to a unique venue id (same as the 4s id)
      *
      * @param $id
-     * @param $wfs_secret_key
+     * @param $secret
      * @return array|bool
      */
-    public function venue($wfs_secret_key, $id)
+    public function venue($secret, $id)
     {
         require_once('../../../wfs_secret.php');
-        if (WFS_SECRET !== $wfs_secret_key)
+        if (WFS_SECRET !== $secret)
         {
             return array('response' => 'fail', 'reason' => 'invalid wfs secret');
         }
@@ -55,13 +55,13 @@ class WFS_Query
      * method that returns a list of all venues id's with username of the mayor
      * also returns number of soldiers the mayor is defending the venue with
      *
-     * @param $wfs_secret_key
+     * @param $secret
      * @return array
      */
-    public function mayors($wfs_secret_key)
+    public function mayors($secret)
     {
         require_once('../../../wfs_secret.php');
-        if (WFS_SECRET !== $wfs_secret_key)
+        if (WFS_SECRET !== $secret)
         {
             return array('response' => 'fail', 'reason' => 'invalid wfs secret');
         }
@@ -73,16 +73,16 @@ class WFS_Query
     /**
      * method that returns $how_many venues ranked by most weakly defended
      *
-     * @param $wfs_secret_key
+     * @param $secret
      * @param $how_many
      *
      * @return array
      *
      */
-    public function weakest($wfs_secret_key, $how_many)
+    public function weakest($secret, $how_many)
     {
         require_once('../../../wfs_secret.php');
-        if (WFS_SECRET !== $wfs_secret_key)
+        if (WFS_SECRET !== $secret)
         {
             return array('response' => 'fail', 'reason' => 'invalid wfs secret');
         }

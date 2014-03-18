@@ -79,13 +79,14 @@ class WFS_Checkin
 
                 # the mayor is awarded the soldier so 1-1=0
                 $insert_array['soldiers'] = 0;
-
                 $insert_array['defenders'] = 0;
-
-
                 $insert_array['soldier_added_on'] = $the_date;
                 $insert_array['soldier_removed_on'] = $the_date;
                 $insert_array['mayor'] = $username;
+
+                # a venue can only be attacked once every 12 hours
+                $insert_array['last_attacked_on'] = null;
+                $insert_array['last_attacked_by'] = null;
 
                 # only used for new venue
                 $insert_array['players'] = array($username);

@@ -21,7 +21,7 @@ class WFS_Nearby
      *
      * @param $lat
      * @param $lng
-     * @param $how_many
+     * @param $howmany
      * @param $restrict boolean  restricts foursquare categories to businesses excluding landmarks
      * @param $radius int in metres
      *
@@ -29,7 +29,7 @@ class WFS_Nearby
      *
      * @todo stash nearby query to save second call to foursquare api in apicheckin.php
      */
-    public function nearby($lat, $lng, $how_many, $restrict, $radius)
+    public function nearby($lat, $lng, $howmany, $restrict, $radius)
     {
         # setup & initialize foursquare api and mongodb connections
         $foursquare = $venues_db = $nearby_venues = $wfs = null;
@@ -116,7 +116,7 @@ class WFS_Nearby
             $agg_array = array( array('$unwind' => '$venues'),
                                 array('$match' => array('temp_id' => $temp_id)),
                                 array('$sort' => array('venues.checkins' =>-1 )),
-                                array('$limit' => (int) $how_many),
+                                array('$limit' => (int) $howmany),
                                 array('$project' =>
                                     array('_id' => 0,
                                         'venues' => 1)));

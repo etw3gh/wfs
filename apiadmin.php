@@ -111,7 +111,7 @@ class WFS_Admin
         # give the user his soldier for the day
         # check to see if it has already not been given
 
-        $time_since_last_soldier = $login_query['last_daily_soldier'] - $the_date;
+        $time_since_last_soldier = $the_date - $login_query['last_daily_soldier'];
 
         if ($time_since_last_soldier > $seconds_per_day)
         {
