@@ -22,6 +22,7 @@ class WFS_Attack
      * @TODO try catch around mongodb operations
      * @TODO check  last_attacked_on and last_attacked_by from venue
      *
+     *
      * SAMPLE USER DOCUMENT
      *
      * > db.users.findOne()
@@ -38,21 +39,27 @@ class WFS_Attack
         }
      *
      * SAMPLE VENUE DOCUMENT
-     *
-     * > db.venues.findOne()
-     *   { "_id" : ObjectId("53226eb93a3cad98468b4577"),
-     *     "checkins" : 623,
-     *     "defenders" : 2,
-     *     "id" : "4b11a4c8f964a5203c8123e3",
-     *     "lat" : 43.665515,
-     *     "lng" : -79.46983805,
-     *     "mayor" : "iamsabbath",
-     *     "name" : "Vesuvio's Pizzeria & Spaghetti House",
-     *     "players" : [  "iamsabbath",  "sabbathdrummer" ],
-     *     "soldier_added_on" : "1394765497",
-     *     "soldier_removed_on" : "1394765497",
-     *     "soldiers" : 0 }
-     *
+    > db.venues.findOne()
+        {
+            "_id" : ObjectId("5327a5643a3cadc6438b456b"),
+            "checkins" : 623,
+            "defenders" : 2,
+            "id" : "4b11a4c8f964a5203c8123e3",
+            "last_attacked_by" : null,
+            "last_attacked_on" : null,
+            "lat" : 43.665515,
+            "lng" : -79.46983805,
+            "mayor" : "iamsabbath",
+            "name" : "Vesuvio's Pizzeria & Spaghetti House",
+            "players" : [
+            "iamsabbath",
+            "sabbathdrummer"
+            ],
+            "soldier_added_on" : "1395107172",
+            "soldier_removed_on" : "1395107172",
+            "soldiers" : 0
+        }
+
      */
     public function attack($id, $username, $attackers, $leavebehind)
     {
@@ -155,7 +162,8 @@ class WFS_Attack
             $users->update(array('username' => $username),
                            array('$inc' => array('soldiers' => (int) $reduce_soldiers_by)));
 
-            return array('result' => 'ok', 'outcome' => 'win', 'attack' => 'default', 'defend' => 'default');
+            return array('result' => 'ok', 'outcome' => 'win',
+                         'attack' => 'default', 'defend' => 'default');
         }
 
         #proceed with attack
