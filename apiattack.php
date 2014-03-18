@@ -87,7 +87,7 @@ class WFS_Attack
         {
             $last_attacked_on = $venue_query['last_attacked_on'];
             $seconds_in_12_hours = 12 * 60 * 60;
-            $seconds_since_last_attack = $last_attacked_on - $the_date;
+            $seconds_since_last_attack = $the_date - $last_attacked_on;
 
             $next_attack_may_occur_in = $seconds_in_12_hours - $seconds_since_last_attack;
 
