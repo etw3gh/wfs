@@ -155,7 +155,7 @@ class WFS_Attack
             $users->update(array('username' => $username),
                            array('$inc' => array('soldiers' => (int) $reduce_soldiers_by)));
 
-            return array('result' => 'ok', 'outcome' => 'win');
+            return array('result' => 'ok', 'outcome' => 'win', 'attack' => 'default', 'defend' => 'default');
         }
 
         #proceed with attack
@@ -240,7 +240,8 @@ class WFS_Attack
             $users->update(array('username' => $username),
                            array('$inc' => array('soldiers' => (int) $reduce_soldiers_by)));
 
-            return array('result' => 'ok', 'outcome' => 'win');
+            return array('result' => 'ok', 'outcome' => 'win',
+                         'attack' => $attack_value, 'defend' => $defend_value);
         }
         #defender wins
         else
@@ -264,7 +265,8 @@ class WFS_Attack
                                array('$inc' => array('defenders' => -1 )),
                                array('$pull' => array('players' => $username)));
 
-            return array('result' => 'ok', 'outcome' => 'loss');
+            return array('result' => 'ok', 'outcome' => 'loss',
+                         'attack' => $attack_value, 'defend' => $defend_value);
         }
     }
 
