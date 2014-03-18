@@ -71,14 +71,27 @@ class WFS_Attack
         # save the date
         $the_date = date('U');
 
-        # short circuit - re-attack too within 12 hours
-        $last_attacked_on = $venue_query['last_attacked_on'];
+        # set up short circuit test for re-attack too soon by same user
+
         $last_attacked_by  = $venue_query['last_attacked_by'];
-        $seconds_in_12_hours = 12 * 60 * 60;
-        $time_since_last_attack =  - $the_date;
 
-        if ($last_attacked_on )
+        #if attacking user is the same as the last attacker calculate if its been 12 hours
+        if ($username == $last_attacked_by)
+        {
+            $last_attacked_on = $venue_query['last_attacked_on'];
+            $seconds_in_12_hours = 12 * 60 * 60;
+            $seconds_since_last_attack = $last_attacked_on - $the_date;
 
+            $next_attack_may_occur_in = $seconds_in_12_hours - $seconds_since_last_attack;
+
+            # short circuit - re-attack too within 12 hours
+            if ($next_attack_may_occur_in > 0)
+            {
+                return array('response' => 'fail',
+                             'reason' => 're-attack too soon',
+                             'secondsleft' => $next_attack_may_occur_in);
+            }
+        }
 
         # save current mayor into local alias
         $current_mayor = $venue_query['mayor'];
@@ -89,8 +102,6 @@ class WFS_Attack
         {
             return array('response' => 'fail', 'reason' => 'no mayor to attack');
         }
-
-
 
         # get attacker details
         $attacker_query = $users->findOne(array('username' => $username));
@@ -111,27 +122,38 @@ class WFS_Attack
             return array('response' => 'fail', 'reason' => 'insufficient soldiers');
         }
 
-        # save defenders into local alias
+        # save defenders & venue soldiers into local aliases
         $defenders = $venue_query['defenders'];
+        $venue_soldiers = $venue_query['soldiers'];
 
         # short circuit - not defended, default win for attacker
         if($defenders <= 0 or is_null($defenders))
         {
             /*
-             * set defenders to 0
+             * set soldiers to 0 ?????????? check to see if there are soldiers??????
+             * set defenders to $leavebehind
+             * adjust last_attacked_on and last_attacked_by
              * set mayor to attacker
              * kick ex-mayor to the curb
              *
-             * if undefended the
+             * if undefended so soldier is lost by default winner
              *
              */
             $venues_db->update(array('id' => $id),
                                array('$set' => array('soldiers' => 0,
                                                      'mayor' => (string) $username,
                                                      'defenders' => (int) $leavebehind),
-                                                     'last_attacked_on' => $the_date,
-                                                     'last_attacked_by' => $username),
+                                                     'last_attacked_on' => (string) $the_date,
+                                                     'last_attacked_by' => (string) $username),
                                array('$pull' => array('players' => $current_mayor)));
+
+            # subtract $leavebehind number of soldiers from the user
+
+            #mongodb has no $dec operator so $inc by negative
+            $reduce_soldiers_by = (-1) * $leavebehind;
+
+            $users->update(array('username' => $username),
+                           array('$inc' => array('soldiers' => (int) $reduce_soldiers_by)));
 
             return array('result' => 'ok', 'outcome' => 'win');
         }
@@ -185,40 +207,65 @@ class WFS_Attack
         #attacker wins
         if ($attack_value > $defend_value)
         {
+            /*
+             *  pickup any venue soldiers for the attacker
+             *  set venue soldiers to 0
+             *
+             *  set defenders to $leavebehind
+             *  adjust last_attacked_on and last_attacked_by
+             *  set mayor to attacker
+             *  kick ex-mayor to the curb
+             *
+             *  reduce attacker soldiers by 1
+             *
+             *  eliminate defenders by
+             *  replacing defenders with $leavebehind which are owned by attacker / mayor /winner
+             *
+             */
 
+            $venues_db->update(array('id' => $id),
+                               array('$set' => array('soldiers' => 0,
+                                                     'mayor' => (string) $username,
+                                                     'defenders' => (int) $leavebehind),
+                                                     'last_attacked_on' => (string) $the_date,
+                                                     'last_attacked_by' => (string) $username),
+                               array('$pull' => array('players' => $current_mayor)));
+
+            # subtract $leavebehind number of soldiers from the user
+
+            # mongodb has no $dec operator so $inc by negative
+            # adjust for any stray venue soldiers
+            $reduce_soldiers_by = (-1) * ($leavebehind - $venue_soldiers);
+
+            $users->update(array('username' => $username),
+                           array('$inc' => array('soldiers' => (int) $reduce_soldiers_by)));
+
+            return array('result' => 'ok', 'outcome' => 'win');
         }
         #defender wins
         else
         {
+            # eliminate attacker defenders
+            # mongodb has no $dec operator so $inc by negative
 
+            $eliminate_attackers = (-1) * $leavebehind;
+
+            $users->update(array('username' => $username),
+                           array('$inc' => array('soldiers' => (int) $eliminate_attackers)));
+
+            /*
+             * reduce defender soldiers by 1
+             * adjust last_attacked_on and last_attacked_by
+             * kick attacker to the curb
+             */
+            $venues_db->update(array('id' => $id),
+                               array('$set' => array('last_attacked_on' => (string) $the_date,
+                                                     'last_attacked_by' => (string) $username)),
+                               array('$inc' => array('defenders' => -1 )),
+                               array('$pull' => array('players' => $username)));
+
+            return array('result' => 'ok', 'outcome' => 'loss');
         }
-
-        $users->update(array('username' => $username),
-                       array('$inc' => array('soldiers' => $soldiers_available)));
-
-        # remove from venue (sets field to zero
-        # TODO determine if soldier related timestamps need altering
-        $venues_db->update(array('id' => $id),
-                           array('$set' => array('soldiers' => 0,
-                                                 'soldiers_removed_on' => $the_date,
-
-                           )));
-
-
-
-
-
-        #setup defender
-
-
-
-
-        #setup attacker
-
-
-
-        # TODO return stats . . .
-        return array('response' => 'ok');
     }
 
 }
