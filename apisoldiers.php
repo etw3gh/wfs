@@ -34,12 +34,12 @@ class WFS_Soldiers
             return array('response' => 'fail', 'reason' => 'user not mayor');
         }
 
-        $soldiers_available = $is_mayor_query['soldiers'];
+        $soldiers_available = (int) $is_mayor_query['soldiers'];
         if ($soldiers_available > 0)
         {
             # first add to user
             $users->update(array('username' => $username),
-                              array('$inc' => array('soldiers' => $soldiers_available)));
+                           array('$inc' => array('soldiers' => $soldiers_available)));
 
             # remove from venue (sets field to zero
             # TODO determine if soldier related timestamps need altering
@@ -74,6 +74,9 @@ class WFS_Soldiers
         $venues_db = $users = null;
         include('mongo_setup_venues_and_users.php');
 
+        # convert $number to an integer
+        $number = (int) $number;
+
         # determine if our user is the mayor of location supplied by $id
         $is_mayor_query = $venues_db->findOne(array('mayor' => $username, 'id' => $id));
 
@@ -104,7 +107,6 @@ class WFS_Soldiers
 
         # retrieve the actual number of soldiers the user has available to them
         $actual_number_of_soldiers = $user_query['soldiers'];
-        $save_original_number = $number;
 
         if($number > $actual_number_of_soldiers)
         {
@@ -123,7 +125,7 @@ class WFS_Soldiers
         # mongo has no '$dec' operator...
         $reduce_by = $number * (-1);
         $users->update(array('username' => $username),
-                          array('$inc' => array('soldiers' => $reduce_by)));
+                       array('$inc' => array('soldiers' => $reduce_by)));
 
         $venues_db->update(array('mayor' =>$username),
                            array('$inc' => array('defenders' => $number)));

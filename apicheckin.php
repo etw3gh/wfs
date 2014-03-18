@@ -123,7 +123,7 @@ class WFS_Checkin
                     # perform update if venue exists
                     # pushes player onto player list
                     $venues_db->update(array('id' => $id),
-                                       array('$push' => array('players' => $username)));
+                                       array('$push' => array('players' => (string) $username)));
                 }
                 else
                 {
@@ -131,15 +131,18 @@ class WFS_Checkin
                     # pushes player onto player list
                     # make this player the mayor
                     $venues_db->update(array('id' => $id),
-                                       array('$set' => array('mayor' => $username)),
-                                       array('$push' => array('players' => $username)));
+                                       array('$set' => array('mayor' => (string) $username)),
+                                       array('$push' => array('players' => (string) $username)));
 
                     # assign soldier (if available) to this user
-                    if ($exists_query['soldiers'] > 0)
+
+                    $venue_soldiers = (int) $exists_query['soldiers'];
+
+                    if ($venue_soldiers > 0)
                     {
                         $users->update(array('username' => $username),
                                        array('$inc' =>
-                                             array('soldiers' => (int) $exists_query['soldiers'])));
+                                             array('soldiers' => $venue_soldiers)));
                     }
                 }
 
@@ -193,7 +196,7 @@ class WFS_Checkin
             else
             {
                 $venues_db->update(array('id' => $id),
-                                   array('$set' => array('mayor' => '')),
+                                   array('$set' => array('mayor' => null)),
                                    array('$pull' => array('players' => $username)));
             }
         }

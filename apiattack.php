@@ -66,6 +66,9 @@ class WFS_Attack
         $venues_db = $users = null;
         include('mongo_setup_venues_and_users.php');
 
+        # convert $leavebehind to a number
+        $leavebehind = (int) $leavebehind;
+
         # get venue details
         $venue_query = $venues_db->findOne(array('id' => $id));
 
@@ -83,7 +86,7 @@ class WFS_Attack
         $last_attacked_by  = $venue_query['last_attacked_by'];
 
         #if attacking user is the same as the last attacker calculate if its been 12 hours
-        if (!is_null($last_attacked_by) and $username == $last_attacked_by)
+        if (!is_null($last_attacked_by) and strcmp($username, $last_attacked_by))
         {
             $last_attacked_on = $venue_query['last_attacked_on'];
             $seconds_in_12_hours = 12 * 60 * 60;
@@ -105,7 +108,7 @@ class WFS_Attack
 
         # short circuit - no mayor
         # TODO should we make this user the mayor???
-        if($current_mayor == '' or is_null($current_mayor))
+        if(strcmp($current_mayor, '') or is_null($current_mayor))
         {
             return array('response' => 'fail', 'reason' => 'no mayor to attack');
         }
@@ -136,7 +139,7 @@ class WFS_Attack
         # short circuit - not defended, default win for attacker
         if (is_null($defenders))
         {
-            $defenders =0;
+            $defenders = 0;
         }
 
         if($defenders <= 0)
@@ -166,10 +169,9 @@ class WFS_Attack
                                array('$pull' => array('players' => $current_mayor)));
 
             # subtract $leavebehind number of soldiers from the user
-
             # mongodb has no $dec operator so $inc by negative
             # adjust by any stray venue soldiers there may be hanging about
-            $reduce_soldiers_by = (-1) * ($leavebehind - 1);
+            $reduce_soldiers_by = (-1) * ($leavebehind - $venue_soldiers);
 
             $users->update(array('username' => $username),
                            array('$inc' => array('soldiers' => (int) $reduce_soldiers_by)));
@@ -177,6 +179,9 @@ class WFS_Attack
             return array('result' => 'ok', 'outcome' => 'win',
                          'attack' => 'default', 'defend' => 'default');
         }
+
+        ########################################################################################
+        ########################################################################################
 
         #proceed with attack
 
