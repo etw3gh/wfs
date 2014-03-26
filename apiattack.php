@@ -106,11 +106,46 @@ class WFS_Attack
         # save current mayor into local alias
         $current_mayor = $venue_query['mayor'];
 
-        # short circuit - no mayor
-        # TODO should we make this user the mayor???
+        /* 
+           INEFFICENT METHOD ADDED AS CONVENIENCE
+           PROPER ORDER IS TO CHECKOUT/CHECKIN/ATTACK
+
+           short circuit - no mayor
+           attacker is the new mayor
+           $leavebehind number of soldiers is placed at venue
+           soldiers reduced
+           strays deleted (should not be present in the first place)
+        */
         if(strcmp($current_mayor, '') or is_null($current_mayor))
         {
-            return array('response' => 'fail', 'reason' => 'no mayor to attack');
+            # user must be checked out of any other venues
+            # user may only be checked into one venue so there is at most one to find
+            $all_venues = $venues_db->findOne(array('mayor' => $username));
+            if (!is_null($all_venues))
+            {
+               $venue_to_checkout = $all_venues['id'];
+               $remove_defenders = $all_venues['defenders'];
+               $venues_db->update(array('id' => $venue_to_checkout),
+                                  array('$set' => array('mayor' => null,
+                                                        'defenders' => 0)),
+                                  array('$pull' => array('players' => $username))); 
+            }
+
+            $venues_db->update(array('id' => $id),
+                               array('$set' => array('mayor' => (string) $username,
+                                                     'defenders' => $leavebehind,
+                                                     'last_attacked_on' => $the_date,
+                                                     'soldiers' => 0,
+                                                     'last_attacked_by' => $username)),
+                               array('$push' => array('players' => (string) $username)));
+           
+            #adjust reduction by number of defenders the player will keep by checking out
+            $reduce_by = (-1) * ($leavebehind - $remove_defenders);    
+ 
+            $users->update(array('username' => $username),
+                           array('$inc' => array('soldiers' => $reduce_by)));
+
+            return array('response' => 'ok', 'notice' => 'user checked in & is mayor');
         }
 
         # get attacker details

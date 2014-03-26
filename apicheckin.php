@@ -177,27 +177,32 @@ class WFS_Checkin
      */
     public function checkout($id, $username)
     {
-        $venues_db = null; include('mongo_setup_venues.php');
+        $venues_db = $users = null; 
+        include('mongo_setup_venues_and_users.php');
 
         try
         {
-            #check to see if the user is mayor of the venue
+            # check to see if the user is mayor of the venue
 
             # determine if our user is the mayor of location supplied by $id
             $is_mayor_query = $venues_db->findOne(array('mayor' => $username, 'id' => $id));
 
-            #case where user is not the mayor
+            # case where user is not the mayor
             if(is_null($is_mayor_query))
             {
                 $venues_db->update(array('id' => $id),
                                    array('$pull' => array('players' => $username)));
             }
-            #case where user is the mayor
+            # case where user is the mayor
+            # must recoup defenders
             else
             {
+                $soldiers_to_recoup = $is_mayor_query['defenders'];
                 $venues_db->update(array('id' => $id),
-                                   array('$set' => array('mayor' => null)),
+                                   array('$set' => array('mayor' => null, 'defenders' => 0, 'soldiers' => 0)),
                                    array('$pull' => array('players' => $username)));
+                $users->update(array('username' => $username),
+                               array('$inc' => array('soldiers' => $soldiers_to_recoup)));
             }
         }
         catch (MongoCursorException $e)
