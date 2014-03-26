@@ -85,8 +85,16 @@ class WFS_Checkin
                 $insert_array['mayor'] = $username;
 
                 # a venue can only be attacked once every 12 hours
-                $insert_array['last_attacked_on'] = null;
+
+                # remove these once 'attacks' array has been coded everywhere
+                $insert_array['last_attacked_on'] = null;                
                 $insert_array['last_attacked_by'] = null;
+
+                #last attack must be an array of key value pairs [{last_attacked_by => last_attacked_on}]
+
+                $insert_array['attacks'] = array();
+
+
 
                 # only used for new venue
                 $insert_array['players'] = array($username);
