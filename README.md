@@ -19,6 +19,8 @@ Read the source code comments for more details
                 password            md5 encoded password
                 first               name
                 last                name
+                lat                 latitude
+                lng                 longitude
         login
                 password            md5 encoded password
                 username            unique wfs username

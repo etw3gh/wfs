@@ -15,12 +15,14 @@ class WFS_Admin
      * @param $password
      * @param $first
      * @param $last
+     * @param $lat        for spawn 
+     * @param $lng        for spawn location
      *
      * @return array a json string with the user details echoed back to the caller
      *
      * IMPORTANT:  please md5 encode the password
      */
-    public function register($username, $password, $first, $last)
+    public function register($username, $password, $first, $last, $lat, $lng)
     {
         $users = null;
         include('mongo_setup_users.php');
@@ -37,11 +39,11 @@ class WFS_Admin
                 'last' => (string) $last,
                 'soldiers' => 1,
                 'last_daily_soldier' => date('U'),
-                #'atloc' => null,      #current online location (null if offline)
+                #'atloc' => null,      # kept in venue only
 
                 #home base / spawn site
-                'lat' => null,
-                'lng' => null  );
+                'lat' => (string) $lat,
+                'lng' => (string) $lng  );
 
             $users->insert($insert_array);
             $return_code = 'ok';
