@@ -42,7 +42,7 @@ class WFS_Nearby
         $nearby_venues = $wfs->selectCollection('nearby');
 
         # add or omit category restrictions to shopping type locations
-        if (strcasecmp($restrict, 'true'))
+        if (strcasecmp($restrict, 'true') == 0)
         {
             # prepare foursquare categories
             $category_array = array(

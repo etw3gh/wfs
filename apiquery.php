@@ -24,7 +24,7 @@ class WFS_Query
     {
         require_once('../../../wfs_secret.php');
 
-        if (strcmp(WFS_SECRET, $secret))
+        if (strcmp(WFS_SECRET, $secret) == 0)
         {
             return array('response' => 'fail', 'reason' => 'invalid wfs secret');
         }
@@ -43,7 +43,7 @@ class WFS_Query
     public function venue($secret, $id)
     {
         require_once('../../../wfs_secret.php');
-        if (strcmp(WFS_SECRET, $secret))
+        if (strcmp(WFS_SECRET, $secret) == 0)
         {
             return array('response' => 'fail', 'reason' => 'invalid wfs secret');
         }
@@ -61,7 +61,7 @@ class WFS_Query
     public function mayors($secret)
     {
         require_once('../../../wfs_secret.php');
-        if (strcmp(WFS_SECRET, $secret))
+        if (strcmp(WFS_SECRET, $secret) == 0)
         {
             return array('response' => 'fail', 'reason' => 'invalid wfs secret');
         }
@@ -82,7 +82,7 @@ class WFS_Query
     public function weakest($secret, $how_many)
     {
         require_once('../../../wfs_secret.php');
-        if (strcmp(WFS_SECRET, $secret))
+        if (strcmp(WFS_SECRET, $secret) == 0)
         {
             return array('response' => 'fail', 'reason' => 'invalid wfs secret');
         }

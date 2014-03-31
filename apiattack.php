@@ -86,7 +86,7 @@ class WFS_Attack
         $last_attacked_by  = $venue_query['last_attacked_by'];
 
         #if attacking user is the same as the last attacker calculate if its been 12 hours
-        if (!is_null($last_attacked_by) and strcmp($username, $last_attacked_by))
+        if (!is_null($last_attacked_by) and strcmp($username, $last_attacked_by) == 0)
         {
             $last_attacked_on = $venue_query['last_attacked_on'];
             $seconds_in_12_hours = 12 * 60 * 60;
@@ -116,7 +116,7 @@ class WFS_Attack
            soldiers reduced
            strays deleted (should not be present in the first place)
         */
-        if(strcmp($current_mayor, '') or is_null($current_mayor))
+        if(strcmp($current_mayor, '') == 0 or is_null($current_mayor))
         {
             # user must be checked out of any other venues
             # user may only be checked into one venue so there is at most one to find
