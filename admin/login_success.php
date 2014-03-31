@@ -1,12 +1,6 @@
 <?php
 
-session_start();
-
-if (! isset($_SESSION['greasy']))
-{
-    header("location:index.php");
-}
-?>
+echo <<<EOD
 
 <html>
 <head>
@@ -16,10 +10,15 @@ if (! isset($_SESSION['greasy']))
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<form action="add_coupon.php" method="post">
-    Admin Password: <input type="text" name="pwd" value=$filler><br />
-    <input type="submit">
+<h2>Enter Venue info:</h2>
+<form action="http://wfsadmin.openciti.ca/coupon_submit.php/" method="post">
+    <table>
+    <tr><td>Name: </td><td><input type="text" name="name" ></td></tr>
+    <tr><td>Value: </td><td><input type="text" name="value" ></td></tr>
+    <tr><td>Description: </td><td><input type="text" name="desc" ></td></tr>
+    <tr><td>Days valid: </td><td><input type="text" name="days" ></td></tr>
+    <tr><td><input type="submit"></td></tr>
+    </table>
 </form>
 
 </body>
@@ -27,3 +26,6 @@ if (! isset($_SESSION['greasy']))
 
 
 </html>
+EOD;
+
+
