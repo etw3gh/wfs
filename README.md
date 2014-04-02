@@ -1,3 +1,5 @@
+![Alt text](badman.jpg "wfs.jpg")
+
 RESTful API for wfs
 ===
 
@@ -82,7 +84,7 @@ Read the source code comments for more details
 
 Example:
 ---
-    http://wfs.openciti.ca/nearby.php?method=nearby&lat=43.6666&lng=-79.4705044018&how_many=4&restrict=true&radius=2000
+    http://wfs.openciti.ca/apinearby.php?method=nearby&lat=43.6666&lng=-79.4705044018&howmany=4&restrict=true&radius=2000
 
     {
         "response": "ok",
