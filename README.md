@@ -1,4 +1,4 @@
-![Alt text](badman.jpg "wfs.jpg")
+![Alt text](wfs.jpg "wfs.jpg")
 
 RESTful API for wfs
 ===
