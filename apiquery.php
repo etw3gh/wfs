@@ -32,7 +32,8 @@ class WFS_Query
         $users = null;
         include('mongo_setup_users.php');
 
-        $user_query = $users->findOne(array('username' => (string) $username));
+        $user_query = $users->findOne(array('username' => (string) $username),
+                                      array('_id' => 0));
 
         if (!is_null($user_query))
         {
@@ -60,7 +61,8 @@ class WFS_Query
         $venues_db = null;
         include('mongo_setup_venues.php');
 
-        $venue_query = $venues_db->findOne(array('id' => (string) $id));
+        $venue_query = $venues_db->findOne(array('id' => (string) $id),
+                                           array('_id' => 0));
 
         if (!is_null($venue_query))
         {
@@ -69,6 +71,49 @@ class WFS_Query
 
         return array('result' => 'fail', 'reason' => 'bad venue');
     }
+
+
+    /**
+     * method to return a list venue documents corresponding to a query of the venue name
+     *
+     * @param $name
+     * @param $secret
+     * @return array
+     *
+     */
+    public function venuename($secret, $name)
+    {
+        # strip spaces
+        $name = trim($name);
+
+        if (strlen($name) < 2)
+        {
+            return array('response' => 'fail', 'reason' => 'invalid name');
+        }
+
+        require_once('../../../wfs_secret.php');
+        if (strcmp(WFS_SECRET, $secret) != 0)
+        {
+            return array('response' => 'fail', 'reason' => 'invalid wfs secret');
+        }
+
+        $venues_db = null;
+        include('mongo_setup_venues.php');
+
+        # query will find case insensitive occurences of $name in all venue names
+        $name_regex = new MongoRegex("/$name/i");
+        $venue_query = $venues_db->find(array('name' => $name_regex),
+                                        array('_id' => 0));
+
+        if (!is_null($venue_query))
+        {
+            return array('result' => 'ok', 'venue' => iterator_to_array($venue_query));
+        }
+
+        return array('result' => 'fail', 'reason' => 'bad venue');
+    }
+
+
 
     /**
      * method that returns a list of all venues id's with username of the mayor
@@ -98,7 +143,7 @@ class WFS_Query
 
         if (!is_null($mayors_query))
         {
-            return array('result' => 'ok', 'mayors' => $mayors_query);
+            return array('result' => 'ok', 'mayors' => iterator_to_array($mayors_query));
         }
 
         return array('result' => 'fail', 'reason' => 'contact DB admin ASAP');
@@ -109,12 +154,12 @@ class WFS_Query
      * method that returns $how_many venues ranked by most weakly defended
      *
      * @param $secret
-     * @param $how_many
+     * @param $howmany
      *
      * @return array
      *
      */
-    public function weakest($secret, $how_many)
+    public function weakest($secret, $howmany)
     {
         require_once('../../../wfs_secret.php');
         if (strcmp(WFS_SECRET, $secret) != 0)
@@ -130,11 +175,14 @@ class WFS_Query
                                            array('_id' => 0,
                                                  'id' => 1,
                                                  'defenders' => 1,
-                                                 'name' => 1))->sort(array('defenders' => 1))->limit(1);
+                                                 'name' => 1))->sort(array('defenders' => 1))->limit($howmany);
 
         if (!is_null($mayor_rob_ford))
         {
-            return array('result' => 'ok', 'weakest' => $mayor_rob_ford);
+            # extract array
+            $worst_mayor = iterator_to_array($mayor_rob_ford);
+
+            return array('result' => 'ok', 'weakest' => $worst_mayor);
         }
 
         return array('result' => 'fail', 'reason' => 'contact DB admin ASAP');

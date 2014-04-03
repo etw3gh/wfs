@@ -73,12 +73,16 @@ Read the source code comments for more details
                 secret              wfs secret only known to developers
                 id                  unique FourSquare venue id
 
+        venuename
+                secret              wfs secret only known to developers
+                name                all or part of the name
+
         mayors
                 secret              wfs secret only known to developers
 
         weakest
                 secret              wfs secret only known to developers
-                how_many            limit results to this number sorted by weakest venue
+                howmany             limit results to this number sorted by weakest venue
 
 
 
