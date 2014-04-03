@@ -139,10 +139,3 @@ Example:
         }
     }
 
-Lenin bad man
----
-![Alt text](badman.jpg "badman.jpg")
-
-Putin bad man
----
-![Alt text](badhorseman.jpg "badhorseman.jpg")
