@@ -86,7 +86,7 @@ class WFS_Attack
         $last_attacked_by  = $venue_query['last_attacked_by'];
 
         #if attacking user is the same as the last attacker calculate if its been 12 hours
-        if (!is_null($last_attacked_by) and strcmp($username, $last_attacked_by) == 0)
+        if (!is_null($last_attacked_by) and strcmp($username, $last_attacked_by) != 0)
         {
             $last_attacked_on = $venue_query['last_attacked_on'];
             $seconds_in_12_hours = 12 * 60 * 60;

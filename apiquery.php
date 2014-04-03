@@ -24,7 +24,7 @@ class WFS_Query
     {
         require_once('../../../wfs_secret.php');
 
-        if (strcmp(WFS_SECRET, $secret) == 0)
+        if (strcmp(WFS_SECRET, $secret) != 0)
         {
             return array('response' => 'fail', 'reason' => 'invalid wfs secret');
         }
@@ -52,7 +52,7 @@ class WFS_Query
     public function venue($secret, $id)
     {
         require_once('../../../wfs_secret.php');
-        if (strcmp(WFS_SECRET, $secret) == 0)
+        if (strcmp(WFS_SECRET, $secret) != 0)
         {
             return array('response' => 'fail', 'reason' => 'invalid wfs secret');
         }
@@ -80,13 +80,13 @@ class WFS_Query
     public function mayors($secret)
     {
         require_once('../../../wfs_secret.php');
-        if (strcmp(WFS_SECRET, $secret) == 0)
+        if (strcmp(WFS_SECRET, $secret) != 0)
         {
             return array('response' => 'fail', 'reason' => 'invalid wfs secret');
         }
 
-        $venues_db = $users = null;
-        include('mongo_setup_venues_and_users.php');
+        $venues_db = null;
+        include('mongo_setup_venues.php');
 
         # db.venues.find({},{_id:0, mayor:1, id:1, name:1, defenders:1})
         $mayors_query = $venues_db->find(array(), #empty array means find all
@@ -95,7 +95,6 @@ class WFS_Query
                                                'id' => 1,
                                                'defenders' => 1,
                                                'name' => 1));
-
 
         if (!is_null($mayors_query))
         {
@@ -118,7 +117,7 @@ class WFS_Query
     public function weakest($secret, $how_many)
     {
         require_once('../../../wfs_secret.php');
-        if (strcmp(WFS_SECRET, $secret) == 0)
+        if (strcmp(WFS_SECRET, $secret) != 0)
         {
             return array('response' => 'fail', 'reason' => 'invalid wfs secret');
         }
