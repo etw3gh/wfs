@@ -101,7 +101,7 @@ class WFS_Query
             return array('result' => 'ok', 'mayors' => $mayors_query);
         }
 
-        return array('result' => 'fail', 'reason' => 'mayor query failed, check with DB admin ASAP');
+        return array('result' => 'fail', 'reason' => 'contact DB admin ASAP');
     }
 
 
@@ -122,7 +122,22 @@ class WFS_Query
             return array('response' => 'fail', 'reason' => 'invalid wfs secret');
         }
 
-        return true;
+        $venues_db = null;
+        include('mongo_setup_venues.php');
+
+        # db.venues.find({},{_id:0, name:1, id:1, defenders:1}).sort({'defenders' :1}).limit(1)
+        $mayor_rob_ford = $venues_db->find(array(), #empty array means find all
+                                           array('_id' => 0,
+                                                 'id' => 1,
+                                                 'defenders' => 1,
+                                                 'name' => 1))->sort(array('defenders' => 1))->limit(1);
+
+        if (!is_null($mayor_rob_ford))
+        {
+            return array('result' => 'ok', 'weakest' => $mayor_rob_ford);
+        }
+
+        return array('result' => 'fail', 'reason' => 'contact DB admin ASAP');
     }
 }
 
