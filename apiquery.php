@@ -29,8 +29,17 @@ class WFS_Query
             return array('response' => 'fail', 'reason' => 'invalid wfs secret');
         }
 
+        $users = null;
+        include('mongo_setup_users.php');
 
-        return true;
+        $user_query = $users->findOne(array('username' => (string) $username));
+
+        if (!is_null($user_query))
+        {
+            return array('result' => 'ok', 'user' => $user_query);
+        }
+
+        return array('result' => 'fail', 'reason' => 'bad user');
     }
 
     /**
@@ -48,12 +57,22 @@ class WFS_Query
             return array('response' => 'fail', 'reason' => 'invalid wfs secret');
         }
 
-        return true;
+        $venues_db = null;
+        include('mongo_setup_venues.php');
+
+        $venue_query = $venues_db->findOne(array('id' => (string) $id));
+
+        if (!is_null($venue_query))
+        {
+            return array('result' => 'ok', 'venue' => $venue_query);
+        }
+
+        return array('result' => 'fail', 'reason' => 'bad venue');
     }
 
     /**
      * method that returns a list of all venues id's with username of the mayor
-     * also returns number of soldiers the mayor is defending the venue with
+     * also returns number of soldiers the mayor is defending the venue with and venue name
      *
      * @param $secret
      * @return array
@@ -66,7 +85,24 @@ class WFS_Query
             return array('response' => 'fail', 'reason' => 'invalid wfs secret');
         }
 
-        return true;
+        $venues_db = $users = null;
+        include('mongo_setup_venues_and_users.php');
+
+        # db.venues.find({},{_id:0, mayor:1, id:1, name:1, defenders:1})
+        $mayors_query = $venues_db->find(array(), #empty array means find all
+                                         array('_id' => 0,
+                                               'mayor' => 1,
+                                               'id' => 1,
+                                               'defenders' => 1,
+                                               'name' => 1));
+
+
+        if (!is_null($mayors_query))
+        {
+            return array('result' => 'ok', 'mayors' => $mayors_query);
+        }
+
+        return array('result' => 'fail', 'reason' => 'mayor query failed, check with DB admin ASAP');
     }
 
 
