@@ -36,6 +36,9 @@ class WFS_Nearby
         include('mongo_setup_venues.php');
         include('foursquare_setup.php');
 
+        # for demonstration purposes we will keep these queries in the database
+        $KEEP_NEARBY_QUERY = true;
+
         # access collection for temporary documents
         # TODO leverage to save foursquare api calls
 
@@ -124,13 +127,17 @@ class WFS_Nearby
             $aggregate = $nearby_venues->aggregate( $agg_array );
 
             # attempt to delete the temporary document (no big deal if it fails)
-            try
+
+            if ($KEEP_NEARBY_QUERY)
             {
-                $nearby_venues->remove(array('temp_id' => $temp_id));
-            }
-            catch (MongoCursorException $e)
-            {
-                # nop
+                try
+                {
+                    $nearby_venues->remove(array('temp_id' => $temp_id));
+                }
+                catch (MongoCursorException $e)
+                {
+                    # nop
+                }
             }
 
             # return the aggregation as the value for key 'top_venues'

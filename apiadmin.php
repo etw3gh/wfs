@@ -39,7 +39,7 @@ class WFS_Admin
                 'last' => (string) $last,
                 'soldiers' => 1,
                 'last_daily_soldier' => date('U'),
-                #'atloc' => null,      # kept in venue only
+                'coupons' => array(),
 
                 #home base / spawn site
                 'lat' => (string) $lat,

@@ -67,19 +67,14 @@ Read the source code comments for more details
         user
                 secret              wfs secret only known to developers
                 username            unique wfs username of the attacker
-
-
         venue
                 secret              wfs secret only known to developers
                 id                  unique FourSquare venue id
-
         venuename
                 secret              wfs secret only known to developers
                 name                all or part of the name
-
         mayors
                 secret              wfs secret only known to developers
-
         weakest
                 secret              wfs secret only known to developers
                 howmany             limit results to this number sorted by weakest venue
