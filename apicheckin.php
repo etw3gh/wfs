@@ -206,9 +206,12 @@ class WFS_Checkin
             else
             {
                 $soldiers_to_recoup = $is_mayor_query['defenders'];
+
                 $venues_db->update(array('id' => $id),
                                    array('$set' => array('mayor' => null, 'defenders' => 0, 'soldiers' => 0)),
                                    array('$pull' => array('players' => $username)));
+
+                # perform db op to allow the mayor to keep any defenders upon checkout
                 $users->update(array('username' => $username),
                                array('$inc' => array('soldiers' => $soldiers_to_recoup)));
             }
