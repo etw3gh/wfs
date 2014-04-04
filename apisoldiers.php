@@ -22,13 +22,13 @@ class WFS_Soldiers
      */
     public function pickup($id, $username)
     {
-        $venues_db = null; $users = null;
+        $venues_db = $users = null;
         include('mongo_setup_venues_and_users.php');
 
         # determine if our user is the mayor of location supplied by $id
         $is_mayor_query = $venues_db->findOne(array('mayor' => $username, 'id' => $id));
 
-        #short circuit
+        # short circuit
         if(is_null($is_mayor_query))
         {
             return array('response' => 'fail', 'reason' => 'user not mayor');
@@ -51,6 +51,8 @@ class WFS_Soldiers
         {
             return array('response' => 'fail', 'reason' => 'no soldiers');
         }
+
+      
 
 
 
