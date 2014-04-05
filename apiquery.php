@@ -154,35 +154,58 @@ class WFS_Query
      * method that returns $how_many venues ranked by most weakly defended
      *
      * @param $secret
-     * @param $howmany
+     * @param $howmany -1 will return the strongest mayor. any other negative will
+     *                    return all the mayors sorted in descending order (strongest at the top)
      *
      * @return array
      *
      */
     public function weakest($secret, $howmany)
     {
+        $venues_db = null;
+        include('mongo_setup_venues.php');
         require_once('../../../wfs_secret.php');
         if (strcmp(WFS_SECRET, $secret) != 0)
         {
             return array('response' => 'fail', 'reason' => 'invalid wfs secret');
         }
 
-        $venues_db = null;
-        include('mongo_setup_venues.php');
-
-        # db.venues.find({},{_id:0, name:1, id:1, defenders:1}).sort({'defenders' :1}).limit(1)
-        $mayor_rob_ford = $venues_db->find(array(), #empty array means find all
-                                           array('_id' => 0,
-                                                 'id' => 1,
-                                                 'defenders' => 1,
-                                                 'name' => 1))->sort(array('defenders' => 1))->limit($howmany);
-
-        if (!is_null($mayor_rob_ford))
+        # short circuit
+        if ($howmany == 0)
         {
-            # extract array
-            $worst_mayor = iterator_to_array($mayor_rob_ford);
+            return array('response' => 'fail', 'reason' => 'howmany must be greater or less than zero');
+        }
 
-            return array('result' => 'ok', 'weakest' => $worst_mayor);
+        # set sort order
+        if ($howmany > 0)
+        {
+            $sort_order = 1;
+            $order_by = 'weakest';
+        }
+        elseif ($howmany == -1)
+        {
+            $sort_order = -1;
+            $howmany = 1;
+            $order_by = 'strongest';
+        }
+        else
+        {
+            $sort_order = -1;
+            $howmany = $venues_db->count();
+            $order_by = 'strongest';
+        }
+
+        # perform this query in php
+        # db.venues.find({},{_id:0, name:1, id:1, defenders:1}).sort({'defenders' :1}).limit(1)
+        $query = $venues_db->find(array(), #empty array means find all
+                                  array('_id' => 0,
+                                        'id' => 1,
+                                        'defenders' => 1,
+                                        'name' => 1))->sort(array('defenders' => $sort_order))->limit($howmany);
+
+        if (!is_null($query))
+        {
+            return array('result' => 'ok', $order_by =>  iterator_to_array($query));
         }
 
         return array('result' => 'fail', 'reason' => 'contact DB admin ASAP');
