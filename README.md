@@ -14,7 +14,6 @@ RTFS
 
 Read the source code comments for more details
 
-
     apiadmin.php
         register
                 username            unique wfs username
@@ -26,7 +25,6 @@ Read the source code comments for more details
         login
                 password            md5 encoded password
                 username            unique wfs username
-
 
     apinearby.php
         nearby
@@ -44,7 +42,6 @@ Read the source code comments for more details
                 id                  unique FourSquare venue id
                 username            unique wfs username
 
-
     apisoldiers.php
         place
                 id                  unique FourSquare venue id
@@ -54,14 +51,12 @@ Read the source code comments for more details
                 id                  unique FourSquare venue id
                 username            unique wfs username
 
-
     apiattack.php
         attack
                 id                  unique FourSquare venue id
                 username            unique wfs username of the attacker
                 attackers           number of soldiers to attack with
                 leavebehind         number of soldiers to leave behind after victory
-
 
     apiquery.php
         user
@@ -78,7 +73,6 @@ Read the source code comments for more details
         weakest
                 secret              wfs secret only known to developers
                 howmany             limit results to this number sorted by weakest venue
-
 
 
 Example:

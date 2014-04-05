@@ -17,7 +17,9 @@ class WFS_Nearby
      * and only includes a few important details of the original response
      *
      * creates a temporary aggregation table with temp_id = date('U')
+     *
      * table is erased immediately after aggregation is performed
+     * if $KEEP_NEARBY_QUERY is set to false
      *
      * @param $lat
      * @param $lng
@@ -25,9 +27,8 @@ class WFS_Nearby
      * @param $restrict boolean  restricts foursquare categories to businesses excluding landmarks
      * @param $radius int in metres
      *
-     * @return array json string
+     * @return array
      *
-     * @todo stash nearby query to save second call to foursquare api in apicheckin.php
      */
     public function nearby($lat, $lng, $howmany, $restrict, $radius)
     {
@@ -128,7 +129,7 @@ class WFS_Nearby
 
             # attempt to delete the temporary document (no big deal if it fails)
 
-            if ($KEEP_NEARBY_QUERY)
+            if (!$KEEP_NEARBY_QUERY)
             {
                 try
                 {
