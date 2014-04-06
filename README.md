@@ -131,4 +131,6 @@ Example:
 Official Beer of #RyeSuperCourse
 ===
 
+http://www.greatlakesbeer.com/index.php/2014/03/24/shes-back-my-bitter-wife-ipa-set-to-return/
+
 ![Alt text](bitterwife.jpg "bitterwife.jpg")
