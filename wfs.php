@@ -1,10 +1,11 @@
 <?php
     # https://github.com/jakesankey/PHP-RestServer-Class/blob/master/RestServer.php
-    require_once('RestServer.php');
+    # require_once('RestServer.php');
 
     /**
      * DEPRECIATED USE THESE ENDPOINTS INSTEAD:
-     *
+     * Functionality has been disabled
+     * 
      * apiadmin.php
      * apinearby.php
      * apicheckin.php
@@ -497,6 +498,8 @@ class WarFareSquare
 
     } //end WarFareSquare class
 
-$rest = new RestServer();
-$rest->addServiceClass('WarFareSquare');
-$rest->handle();
+# FUNCTIONALITY HAS BEEN DISABLED FOR THIS SCRIPT
+
+# $rest = new RestServer();
+# $rest->addServiceClass('WarFareSquare');
+# $rest->handle();
