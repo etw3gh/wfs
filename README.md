@@ -128,3 +128,7 @@ Example:
         }
     }
 
+Official Beer of #RyeSuperCourse
+===
+
+![Alt text](bitterwife.jpg "bitterwife.jpg")
