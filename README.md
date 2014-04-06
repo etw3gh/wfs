@@ -3,7 +3,10 @@
 RESTful API for wfs
 ===
 
-(passwords should be md5 encoded by the application)
+A Very Useful Document
+---
+https://docs.google.com/spreadsheet/ccc?key=0AjbKSMxBL3EfdEJEQlAyZXZGeFhrUmEtXzZoa0VUdkE&usp=drive_web#gid=0
+
 
 http://wfs.openciti.ca...
 
