@@ -8,6 +8,9 @@ A Very Useful Document
 https://docs.google.com/spreadsheet/ccc?key=0AjbKSMxBL3EfdEJEQlAyZXZGeFhrUmEtXzZoa0VUdkE&usp=drive_web#gid=0
 
 
+Usage
+---
+
 http://wfs.openciti.ca...
 
 ...ENDPOINT.PHP?method=METHOD&.....
