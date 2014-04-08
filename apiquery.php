@@ -80,11 +80,14 @@ class WFS_Query
      * @param $secret
      * @return array
      *
+     *
+     * send 'all' as name to get all venues
+     *
      */
     public function venuename($secret, $name)
     {
         # strip spaces
-        $name = trim($name);
+        $name = strtolower(trim($name));
 
         if (strlen($name) < 2)
         {
@@ -100,10 +103,18 @@ class WFS_Query
         $venues_db = null;
         include('mongo_setup_venues.php');
 
-        # query will find case insensitive occurences of $name in all venue names
-        $name_regex = new MongoRegex("/$name/i");
-        $venue_query = $venues_db->find(array('name' => $name_regex),
-                                        array('_id' => 0));
+        # check to see if caller is demanding all venues be returned
+        if (strcasecmp($name, 'all') == 0)
+        {
+            $venue_query = $venues_db->find(array(), array('_id' => 0));
+        }
+        else
+        {
+            # query will find case insensitive occurences of $name in all venue names
+            $name_regex = new MongoRegex("/$name/i");
+            $venue_query = $venues_db->find(array('name' => $name_regex),
+                                            array('_id' => 0));
+        }
 
         if (!is_null($venue_query))
         {
