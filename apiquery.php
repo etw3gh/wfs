@@ -170,6 +170,8 @@ class WFS_Query
             return array('response' => 'fail', 'reason' => 'invalid wfs secret');
         }
 
+        $howmany = (int) $howmany;
+
         # short circuit
         if ($howmany == 0)
         {
