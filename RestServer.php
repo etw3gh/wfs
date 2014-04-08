@@ -12,16 +12,24 @@ class RestServer {
     public function handle() {
         $requestAttributes = $this->getRequestAttributeArray();
 
-        if ($this->methodIsDefinedInRequest()) {
+
+
+
+
+
+        if ($this->methodIsDefinedInRequest())
+        {
             $method = $requestAttributes["method"];
 
             $serviceClass = $this->getClassContainingMethod($method);
 
-            if ($serviceClass != null) {
+            if ($serviceClass != null)
+            {
                 $ref = new ReflectionMethod($serviceClass, $method);
-                if (!$ref->isPublic()) {
+                if (!$ref->isPublic())
+                {
                     echo json_encode(array('error' => 'API call is invalid.'));
-                        return ;
+                    return ;
                 }
                 $params = $ref->getParameters();
                 $paramCount = count($params);
@@ -30,7 +38,8 @@ class RestServer {
 
                 $iterator = 0;
 
-                foreach ($params as $param) {
+                foreach ($params as $param)
+                {
                     $pArray[strtolower($param->getName())] = null;
                     $paramStr .= $param->getName();
                     if ($iterator != $paramCount-1) {
@@ -47,19 +56,34 @@ class RestServer {
                 if (count($pArray) == $paramCount && !in_array(null, $pArray)) {
                     $result = call_user_func_array(array($serviceClass, $method), $pArray);
 
-                    if ($result != null) {
+
+                    /*
+                     *
+                     * headers added no cache
+                     *
+                     *
+                     */
+
+
+                    if ($result != null)
+                    {
+                        header('Cache-Control: no-cache, must-revalidate');
+                        header('Content-type: application/json');
                         echo json_encode($result);
                     }
                 }
-                else {
+                else
+                {
                     echo json_encode(array('error' => "Required parameter(s) for ". $method .": ". $paramStr));
                 }
             }
-            else {
+            else
+            {
                 echo json_encode(array('error' => "The method " . $method . " does not exist."));
             }
         }
-        else {
+        else
+        {
             echo json_encode(array('error' => 'No method was requested.'));
         }
     }
