@@ -13,7 +13,15 @@ class RestServer {
         $requestAttributes = $this->getRequestAttributeArray();
 
 
-
+        /*
+         *
+         * headers added no cache
+         *
+         * moved here to cover all outcomes sucesss/fail
+         *
+         */
+        header('Cache-Control: no-cache, must-revalidate');
+        header('Content-type: application/json');
 
 
 
@@ -57,18 +65,11 @@ class RestServer {
                     $result = call_user_func_array(array($serviceClass, $method), $pArray);
 
 
-                    /*
-                     *
-                     * headers added no cache
-                     *
-                     *
-                     */
 
 
                     if ($result != null)
                     {
-                        header('Cache-Control: no-cache, must-revalidate');
-                        header('Content-type: application/json');
+
                         echo json_encode($result);
                     }
                 }
