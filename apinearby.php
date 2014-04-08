@@ -3,9 +3,6 @@
 # https://github.com/jakesankey/PHP-RestServer-Class/blob/master/RestServer.php
 require_once('RestServer.php');
 
-/**
- * Class WarFareSquare
- */
 
 class WFS_Nearby
 {

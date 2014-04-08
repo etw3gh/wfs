@@ -4,7 +4,10 @@
 require_once('RestServer.php');
 
 /**
- * Class WarFareSquare
+ * Class WFS_Checkin
+ *
+ * contains methods checkin & checkout
+ *
  */
 
 class WFS_Checkin

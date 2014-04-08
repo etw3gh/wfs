@@ -5,7 +5,10 @@ require_once('RestServer.php');
 
 
 /**
- * Class WarFareSquare
+ * Class WFS_Admin
+ *
+ * contains methods register, login and logout
+ *
  */
 
 class WFS_Admin
@@ -106,7 +109,7 @@ class WFS_Admin
         # return 'fail' response if either username or password or both are incorrect or not found
         if(is_null($login_query))
         {
-            return array('response' => 'fail');
+            return array('response' => 'fail',  'reason' => 'bad user');
         }
         # log the user in and see if they deserve a soldier
 
@@ -144,6 +147,59 @@ class WFS_Admin
             return array('response' => 'fail', 'reason' => 'user not found');
         }
     }
+
+
+    /**
+     * @param $username   string
+     * @param $secret     string    admin can log a user out without their pwd
+     * @return array
+     *
+     *
+     * what must be done on logout?
+     *
+     * - user can stay mayor of venues
+     * - user must be checked out of venues to which they are not mayor
+     *
+     *
+     * Logs out an existing warfoursquare user from the server
+     * removes username from the 'online' collection
+     *
+     */
+    public function logout($username, $secret)
+    {
+        require_once('../../../wfs_secret.php');
+
+        if (strcmp(WFS_SECRET, $secret) != 0)
+        {
+            return array('response' => 'fail', 'reason' => 'invalid wfs secret');
+        }
+
+        # setup & initialize foursquare api and mongodb connections
+        $foursquare = $users = $venues_db = null;
+        include('mongo_setup_venues_and_users.php');
+
+        # query database for the user
+        $logout_query = $users->findOne(array("username" => (string) $username));
+
+        # return 'fail' response if either username is incorrect or not found
+        if(is_null($logout_query))
+        {
+            return array('response' => 'fail', 'reason' => 'bad user');
+        }
+
+        # check all venues to see if the user is checkedin but is not the mayor
+        # if they are the mayor, leave them, if not remove them
+        $not_the_mayor_here = $venues_db->find(array("username" => array('$ne' => (string) $username)));
+
+        foreach($not_the_mayor_here as $get_out_of_dodge)
+        {
+            $id = $get_out_of_dodge['id'];
+            $venues_db->update(array('username'=> (string) $username),
+                               array('$pull' => array('players' => (string) $username)));
+        }
+
+    }
+
 }
 
 ###################### MAIN

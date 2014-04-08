@@ -4,7 +4,7 @@
 require_once('RestServer.php');
 
 /**
- * Class WarFareSquare
+ * Class WFS_Query
  *
  * allows the caller in possession of a SECRET_ADMIN_KEY to perform
  * queries on the users and venues database collections
