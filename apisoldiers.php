@@ -4,7 +4,10 @@
 require_once('RestServer.php');
 
 /**
- * Class WarFareSquare
+ * Class WFS_Soldiers
+ *
+ * contains methods pickup & place
+ *
  */
 
 class WFS_Soldiers
