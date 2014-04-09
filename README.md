@@ -31,6 +31,10 @@ Read the source code comments for more details
         login
                 password            md5 encoded password
                 username            unique wfs username
+        logout
+                username            unique wfs username
+                secret              wfs secret only known to developers
+
 
     apinearby.php
         nearby
