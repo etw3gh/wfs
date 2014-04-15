@@ -176,7 +176,7 @@ class WFS_Admin
 
         # setup & initialize foursquare api and mongodb connections
         $foursquare = $users = $venues_db = null;
-        include('mongo_setup_venues_and_users.php');
+        require_once('mongo_setup_venues_and_users.php');
 
         # query database for the user
         $logout_query = $users->findOne(array("username" => (string) $username));
