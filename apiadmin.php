@@ -28,7 +28,7 @@ class WFS_Admin
     public function register($username, $password, $first, $last, $lat, $lng)
     {
         $users = null;
-        include('mongo_setup_users.php');
+        require_once('mongo_setup_users.php');
 
         try
         {
@@ -92,7 +92,7 @@ class WFS_Admin
     public function login($username, $password)
     {
         $online = $users = null;
-        include('mongo_setup_users.php');
+        require_once('mongo_setup_users.php');
 
         # calculate the seconds in a day for soldier calculations
         $seconds_per_day = 24 * 60 * 60;

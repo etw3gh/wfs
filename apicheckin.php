@@ -30,8 +30,8 @@ class WFS_Checkin
     {
         # setup & initialize foursquare api and mongodb connections
         $foursquare = $users = $venues_db = null;
-        include('mongo_setup_venues_and_users.php');
-        include('foursquare_setup.php');
+        require_once('mongo_setup_venues_and_users.php');
+        require_once('foursquare_setup.php');
 
         # OBTAIN A VENUE BY VENUE ID
         $response = $foursquare->GetPublic("venues/$id");
@@ -188,8 +188,8 @@ class WFS_Checkin
      */
     public function checkout($id, $username)
     {
-        $venues_db = $users = null; 
-        include('mongo_setup_venues_and_users.php');
+        $venues_db = $users = null;
+        require_once('mongo_setup_venues_and_users.php');
 
         try
         {

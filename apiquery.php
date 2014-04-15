@@ -22,15 +22,14 @@ class WFS_Query
      */
     public function user($secret, $username)
     {
-        require_once('../../../wfs_secret.php');
+        $users = null;
+        require_once('mongo_setup_users.php');
 
+        require_once('../../../wfs_secret.php');
         if (strcmp(WFS_SECRET, $secret) != 0)
         {
             return array('response' => 'fail', 'reason' => 'invalid wfs secret');
         }
-
-        $users = null;
-        include('mongo_setup_users.php');
 
         $user_query = $users->findOne(array('username' => (string) $username),
                                       array('_id' => 0));
@@ -52,14 +51,14 @@ class WFS_Query
      */
     public function venue($secret, $id)
     {
+        $venues_db = null;
+        require_once('mongo_setup_venues.php');
+
         require_once('../../../wfs_secret.php');
         if (strcmp(WFS_SECRET, $secret) != 0)
         {
             return array('response' => 'fail', 'reason' => 'invalid wfs secret');
         }
-
-        $venues_db = null;
-        include('mongo_setup_venues.php');
 
         $venue_query = $venues_db->findOne(array('id' => (string) $id),
                                            array('_id' => 0));
@@ -86,13 +85,8 @@ class WFS_Query
      */
     public function venuename($secret, $name)
     {
-        # strip spaces
-        $name = strtolower(trim($name));
-
-        if (strlen($name) < 2)
-        {
-            return array('response' => 'fail', 'reason' => 'invalid name');
-        }
+        $venues_db = null;
+        require_once('mongo_setup_venues.php');
 
         require_once('../../../wfs_secret.php');
         if (strcmp(WFS_SECRET, $secret) != 0)
@@ -100,8 +94,12 @@ class WFS_Query
             return array('response' => 'fail', 'reason' => 'invalid wfs secret');
         }
 
-        $venues_db = null;
-        include('mongo_setup_venues.php');
+        # strip spaces
+        $name = strtolower(trim($name));
+        if (strlen($name) < 2)
+        {
+            return array('response' => 'fail', 'reason' => 'invalid name');
+        }
 
         # check to see if caller is demanding all venues be returned
         if (strcasecmp($name, 'all') == 0)
@@ -135,14 +133,16 @@ class WFS_Query
      */
     public function mayors($secret)
     {
+        $venues_db = null;
+        require_once('mongo_setup_venues.php');
+
         require_once('../../../wfs_secret.php');
         if (strcmp(WFS_SECRET, $secret) != 0)
         {
             return array('response' => 'fail', 'reason' => 'invalid wfs secret');
         }
 
-        $venues_db = null;
-        include('mongo_setup_venues.php');
+
 
         # db.venues.find({},{_id:0, mayor:1, id:1, name:1, defenders:1})
         $mayors_query = $venues_db->find(array(), #empty array means find all
@@ -174,7 +174,8 @@ class WFS_Query
     public function weakest($secret, $howmany)
     {
         $venues_db = null;
-        include('mongo_setup_venues.php');
+        require_once('mongo_setup_venues.php');
+
         require_once('../../../wfs_secret.php');
         if (strcmp(WFS_SECRET, $secret) != 0)
         {

@@ -31,8 +31,8 @@ class WFS_Nearby
     {
         # setup & initialize foursquare api and mongodb connections
         $foursquare = $venues_db = $nearby_venues = $wfs = null;
-        include('mongo_setup_venues.php');
-        include('foursquare_setup.php');
+        require_once('mongo_setup_venues.php');
+        require_once('foursquare_setup.php');
 
         # for demonstration purposes we will keep these queries in the database
         $KEEP_NEARBY_QUERY = true;

@@ -24,7 +24,7 @@ class WFS_Attack
     public function attack($id, $username, $attackers, $leavebehind)
     {
         $venues_db = $users = null;
-        include('mongo_setup_venues_and_users.php');
+        require_once('mongo_setup_venues_and_users.php');
 
         # convert $leavebehind to a number
         $leavebehind = (int) $leavebehind;

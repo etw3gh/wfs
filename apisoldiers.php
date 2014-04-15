@@ -26,7 +26,7 @@ class WFS_Soldiers
     public function pickup($id, $username)
     {
         $venues_db = $users = null;
-        include('mongo_setup_venues_and_users.php');
+        require_once('mongo_setup_venues_and_users.php');
 
         # determine if our user is the mayor of location supplied by $id
         $is_mayor_query = $venues_db->findOne(array('mayor' => $username, 'id' => $id));
@@ -77,7 +77,7 @@ class WFS_Soldiers
     {
         # setup & initialize mongodb connections
         $venues_db = $users = null;
-        include('mongo_setup_venues_and_users.php');
+        require_once('mongo_setup_venues_and_users.php');
 
         # convert $number to an integer
         $number = (int) $number;
