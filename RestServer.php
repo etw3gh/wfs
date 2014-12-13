@@ -22,6 +22,7 @@ class RestServer {
          */
         header('Cache-Control: no-cache, must-revalidate');
         header('Content-type: application/json');
+        header('Access-Control-Allow-Origin: *');
 
 
 
